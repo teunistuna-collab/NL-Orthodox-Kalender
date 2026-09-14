@@ -144,16 +144,23 @@ function polar(cx: number, cy: number, r: number, angleDeg: number) {
 function parseBestand(raw: string) {
   const kernversIndex = raw.split(/\r?\n/).findIndex((regel) => /^Kernvers\s*:?/i.test(regel.trim()));
   const regels = raw.split(/\r?\n/);
+  const onderdelen = [...raw.matchAll(/^(Psalm|Ode)\s+[^\n]+$/gim)].map((match, index, matches) => ({
+    soort: match[1],
+    titel: match[0].trim(),
+    tekst: raw.slice(match.index ?? 0, matches[index + 1]?.index ?? raw.length).trim(),
+  }));
+  const eersteOnderdeel = onderdelen[0];
   return {
-    tekst: raw.trim(),
+    tekst: eersteOnderdeel ? raw.slice(0, raw.indexOf(eersteOnderdeel.tekst)).trim() : raw.trim(),
     kernvers: kernversIndex >= 0 ? regels[kernversIndex].replace(/^Kernvers\s*:?\s*/i, '').trim() : undefined,
     kernversTekst: kernversIndex >= 0 ? regels.slice(kernversIndex + 1).join('\n').split(/\n\s*\n/)[0].trim() : undefined,
+    ode: onderdelen.find((onderdeel) => onderdeel.soort.toLowerCase() === 'ode'),
   };
 }
 
 export default function UrenCyclus() {
   const [open, setOpen] = useState<number | null>(null);
-  const [details, setDetails] = useState<Record<number, { tekst: string; kernvers?: string; kernversTekst?: string }>>({});
+  const [details, setDetails] = useState<Record<number, { tekst: string; kernvers?: string; kernversTekst?: string; ode?: { titel: string; tekst: string } }>>({});
   const [psalmOpen, setPsalmOpen] = useState<{ titel: string; tekst: string } | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const activeIndex = hovered ?? open ?? 0;
@@ -302,8 +309,13 @@ export default function UrenCyclus() {
                   const response = await fetch(`/data/uren/${encodeURIComponent(uren[open].psalmBestand)}`);
                   setPsalmOpen({ titel: uren[open].psalmBestand.replace(' psalm.txt', ''), tekst: await response.text() });
                 }} className="mt-5 rounded-full border border-gold/50 bg-gold-pale px-4 py-2 text-sm font-bold text-gold-deep hover:bg-gold-light">
-                  Lees de bijbehorende Psalm
+                  Lees de Psalm
                 </button>
+                {details[open]?.ode && (
+                  <button type="button" onClick={() => setPsalmOpen({ titel: details[open].ode.titel, tekst: details[open].ode.tekst })} className="mt-5 ml-2 rounded-full border border-gold/50 bg-gold-pale px-4 py-2 text-sm font-bold text-gold-deep hover:bg-gold-light">
+                    Lees de Ode
+                  </button>
+                )}
               </div>
             </div>
           </div>
