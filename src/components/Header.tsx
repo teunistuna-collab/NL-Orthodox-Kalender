@@ -38,14 +38,14 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 shadow-lg shadow-black/20">
       <div className="bg-bark text-cream">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
-          <a href="#vandaag" className="flex items-center gap-3">
-            <span className="flex h-10 w-8 items-center justify-center text-gold">
-              <Cross className="h-9 w-6" />
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-2.5">
+          <a href="#vandaag" className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <span className="flex h-9 w-7 shrink-0 items-center justify-center text-gold sm:h-10 sm:w-8">
+              <Cross className="h-8 w-5 sm:h-9 sm:w-6" />
             </span>
-            <span className="leading-tight">
-              <span className="font-display block text-xl font-semibold tracking-wide text-gold-light sm:text-2xl">Orthodoxe Kalender</span>
-              <span className="block text-[10px] font-semibold tracking-[0.22em] text-[#bfa982] uppercase">Nederland · feesten · vasten · heiligen</span>
+            <span className="min-w-0 leading-tight">
+              <span className="font-display block truncate text-lg font-semibold tracking-wide text-gold-light sm:text-2xl">Orthodoxe Kalender</span>
+              <span className="hidden text-[10px] font-semibold tracking-[0.22em] text-[#bfa982] uppercase sm:block">Nederland · feesten · vasten · heiligen</span>
             </span>
           </a>
 
@@ -56,20 +56,20 @@ export default function Header() {
                 {mode === 'oud' ? `Kerkelijk: ${formatDag(kerk)} (juliaans)` : 'Nieuwe kalender (gereviseerd juliaans)'}
               </div>
             </div>
-            <div className="flex rounded-full border border-gold/40 bg-bark-2 p-0.5 text-[11px] font-bold tracking-wider uppercase" role="group" aria-label="Kalenderkeuze">
+            <div className="flex shrink-0 rounded-full border border-gold/40 bg-bark-2 p-0.5 text-[10px] font-bold tracking-wider uppercase sm:text-[11px]" role="group" aria-label="Kalenderkeuze">
               <button
                 type="button"
                 onClick={() => setMode('nieuw')}
                 className={`rounded-full px-3 py-1.5 transition ${mode === 'nieuw' ? 'bg-gold text-bark' : 'text-gold-light hover:text-white'}`}
               >
-                Nieuw
+                  <span className="sm:hidden">N</span><span className="hidden sm:inline">Nieuw</span>
               </button>
               <button
                 type="button"
                 onClick={() => setMode('oud')}
                 className={`rounded-full px-3 py-1.5 transition ${mode === 'oud' ? 'bg-gold text-bark' : 'text-gold-light hover:text-white'}`}
               >
-                Oud
+                  <span className="sm:hidden">O</span><span className="hidden sm:inline">Oud</span>
               </button>
             </div>
           </div>

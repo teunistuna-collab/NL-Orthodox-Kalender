@@ -131,7 +131,7 @@ export default function Kalender() {
                   key={c.ymd}
                   type="button"
                   onClick={() => openDag(c.ymd)}
-                  className={`relative min-h-[84px] border-r border-b border-parchment-3 p-1.5 text-left align-top transition [&:nth-child(7n)]:border-r-0 sm:min-h-[112px] sm:p-2 ${
+                  className={`relative min-h-[72px] border-r border-b border-parchment-3 p-1 text-left align-top transition [&:nth-child(7n)]:border-r-0 sm:min-h-[112px] sm:p-2 ${
                     buiten ? 'bg-parchment-2/60 text-ink-mute' : 'bg-white/60 hover:bg-gold-pale/60'
                   } ${c.isVandaag ? 'ring-2 ring-gold ring-inset' : ''}`}
                   title="Open dagdetail"
