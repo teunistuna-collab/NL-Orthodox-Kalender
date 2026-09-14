@@ -11,6 +11,7 @@ interface Uur {
   ring: number;
   dot: string;
   kernvers: string;
+  kernversTekst?: string;
   inhoud: string;
   bestand?: string;
   psalm?: { titel: string; tekst: string };
@@ -180,7 +181,11 @@ function polar(cx: number, cy: number, r: number, angleDeg: number) {
 function parseUurBestand(raw: string) {
   const regels = raw.replace(/\r/g, '').split('\n');
   const nietLeeg = regels.findIndex((regel) => regel.trim());
-  const kernversRegel = regels.find((regel) => /^Kernvers\s*:?/i.test(regel.trim()));
+  const kernversIndex = regels.findIndex((regel) => /^Kernvers\s*:?/i.test(regel.trim()));
+  const kernversRegel = kernversIndex >= 0 ? regels[kernversIndex] : undefined;
+  const kernversTekst = kernversIndex >= 0
+    ? regels.slice(kernversIndex + 1).join('\n').split(/\n\s*\n/)[0].trim()
+    : undefined;
   const koppen = [...raw.matchAll(/^(Psalm|Ode)\s+[^\n]+$/gim)];
   const psalmen = koppen.map((match, index) => {
     const start = match.index ?? 0;
@@ -190,6 +195,7 @@ function parseUurBestand(raw: string) {
   return {
     inhoud: raw.trim(),
     kernvers: kernversRegel?.replace(/^Kernvers\s*:?\s*/i, '').trim(),
+    kernversTekst,
     psalmen,
     titel: nietLeeg >= 0 ? regels[nietLeeg].trim() : undefined,
   };
@@ -218,7 +224,7 @@ export default function UrenCyclus() {
         const geladen: Array<readonly [number, ReturnType<typeof parseUurBestand>]> = resultaten
           .filter((resultaat): resultaat is PromiseFulfilledResult<readonly [number, ReturnType<typeof parseUurBestand> | null]> => resultaat.status === 'fulfilled')
           .map((resultaat) => resultaat.value)
-          .filter(([, detail]): detail is ReturnType<typeof parseUurBestand> => detail !== null);
+          .filter((item): item is readonly [number, ReturnType<typeof parseUurBestand>] => item[1] !== null);
         setDetails(Object.fromEntries(geladen));
       })
       .catch(() => undefined);
@@ -335,7 +341,8 @@ export default function UrenCyclus() {
                       <Clock3 className="h-3.5 w-3.5" />
                       {uur.tijd}
                     </span>
-                    <span className="mt-1 block truncate text-xs font-semibold text-gold-deep">Kernvers: {detail?.kernvers ?? uur.kernvers}</span>
+                    <span className="mt-1 block text-xs font-semibold text-gold-deep">Kernvers: {detail?.kernvers ?? uur.kernvers}</span>
+                    <span className="mt-0.5 block whitespace-pre-line text-xs leading-snug text-ink-soft">{detail?.kernversTekst ?? ' '}</span>
                   </span>
                   <ChevronDown className="h-5 w-5 shrink-0 text-[#d4aa3d]" />
                 </button>
@@ -358,6 +365,7 @@ export default function UrenCyclus() {
                   <p className="text-[11px] font-bold tracking-[0.28em] text-[#f0cf7b] uppercase">{uren[open].tijd}</p>
                   <h2 className="font-display mt-1 text-3xl font-semibold text-[#f5ebd7]">{uren[open].naam}</h2>
                   <p className="mt-1 text-xs text-[#d2ba8d]">Kernvers: {detail?.kernvers ?? uren[open].kernvers}</p>
+                  <p className="mt-0.5 whitespace-pre-line text-xs leading-snug text-[#d2ba8d]">{detail?.kernversTekst}</p>
                 </div>
                 <button type="button" onClick={() => setOpen(null)} className="rounded-full p-2 text-[#f4ecda] hover:bg-white/10" aria-label="Sluiten"><X className="h-5 w-5" /></button>
               </div>
