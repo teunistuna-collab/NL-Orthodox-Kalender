@@ -148,16 +148,10 @@ function parseDienstBestand(raw: string) {
   const onderdelen = [...schoon.matchAll(/^(Psalm|Ode)\s+[^\n]+$/gim)];
   let tekst = schoon.trim();
   if (onderdelen.length > 0) {
-    const eerste = onderdelen[0].index ?? 0;
-    const voorPsalm = schoon.slice(0, eerste).trim();
-    const naKernvers = kernversIndex >= 0 && eerste <= schoon.indexOf(regels[kernversIndex])
-      ? schoon.slice(schoon.indexOf(regels[kernversIndex]) + regels[kernversIndex].length).replace(/^\s+/, '')
-      : '';
-    const eindeKernvers = naKernvers.search(/\n\s*\n/);
-    const uitlegStart = eindeKernvers >= 0 ? naKernvers.slice(eindeKernvers).replace(/^\s+/, '') : '';
-    const volgendePsalm = onderdelen[1]?.index ?? schoon.length;
-    const uitleg = uitlegStart ? uitlegStart.slice(0, Math.max(0, volgendePsalm - (schoon.indexOf(regels[kernversIndex]) + regels[kernversIndex].length))).trim() : '';
-    tekst = [voorPsalm, uitleg].filter(Boolean).join('\n\n').trim();
+    const kernversPos = kernversIndex >= 0 ? schoon.indexOf(regels[kernversIndex]) : 0;
+    const eersteNaKernvers = onderdelen.find((onderdeel) => (onderdeel.index ?? 0) > kernversPos);
+    const afkapPositie = eersteNaKernvers?.index ?? onderdelen[0].index ?? schoon.length;
+    tekst = schoon.slice(0, afkapPositie).trim();
   }
   return {
     tekst,
