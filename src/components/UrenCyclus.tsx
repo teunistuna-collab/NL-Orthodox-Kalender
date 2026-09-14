@@ -1,7 +1,65 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown, Clock3, X } from 'lucide-react';
 
-const uren = [
+interface Uur {
+  nr: number;
+  naam: string;
+  taal: string;
+  tijd: string;
+  kleur: string;
+  accent: string;
+  ring: number;
+  dot: string;
+  kernvers: string;
+  inhoud: string;
+  bestand?: string;
+  psalm?: { titel: string; tekst: string };
+}
+
+const psalmNegendeUur = `1 Naar het einde toe. Een psalm van de Korachieten.
+
+2 U bent, Heer, uw land goedgezind;
+U liet Jakob terugkeren uit gevangenschap.
+
+3 U vergaf de wandaden van uw volk
+en bedekte al hun zonden.
+
+4 U hebt uw woede geheel laten varen
+en u van uw brandende toorn afgewend.
+
+5 Breng ons terug, God, onze redder,
+en wend uw toorn van ons af.
+
+6 U blijft toch niet voor eeuwig boos op ons?
+U laat uw woede toch niet voortduren van generatie op generatie?
+
+7 God, wanneer U zich naar ons omkeert, doet U ons opleven,
+dan verheugt uw volk zich in U.
+
+8 Toon ons, Heer, uw barmhartigheid
+en schenk ons uw verlossing.
+
+9 Ik zal luisteren naar wat God in mij zegt,
+want Hij verkondigt vrede voor zijn volk,
+voor zijn toegewijden
+en voor wie hun hart naar Hem gekeerd hebben.
+
+10 Voor wie Hem vrezen is zijn redding nabij,
+zodat zijn glorie zal wonen in ons land.
+
+11 Barmhartigheid en waarheid omhelzen elkaar,
+rechtvaardigheid en vrede begroeten elkaar met een kus.
+
+12 Waarheid schiet uit de aarde omhoog
+en rechtvaardigheid kijkt vanuit de hemel neer.
+
+13 De Heer schenkt zijn goedheid,
+en ons land zal vruchten geven.
+
+14 Rechtvaardigheid gaat voor Hem uit
+en baant een weg voor zijn voeten.`;
+
+const uren: Uur[] = [
   {
     nr: 1,
     naam: 'Vespers',
@@ -11,17 +69,21 @@ const uren = [
     accent: 'text-[#f0cf7b]',
     ring: 18,
     dot: '#d9a645',
+    kernvers: 'Psalm 103:1',
+    bestand: 'Vespers.txt',
     inhoud: 'Psalmen: 103; 140, 141, 129, 116\n\nSchepping en terugkeer tot God. Psalm 103 bezingt God als Schepper en opent de nieuwe kerkelijke dag. Bij "Heer, ik roep tot U" wordt het avondgebed als wierook tot God verheven. De mens brengt de voorbije dag bij God en vraagt om vergeving en bewaring in de nacht.\n\nSymboliek: schepping en avondoffer.',
   },
   {
     nr: 2,
-    naam: 'Completorium',
+    naam: 'Completen',
     taal: 'Apo-deipnon · Ἀποδειπνικόν',
     tijd: '21:00',
     kleur: 'bg-[#8b5d2d]',
     accent: 'text-[#ead8a6]',
     ring: 21,
     dot: '#b76b39',
+    kernvers: 'Psalm 50:12',
+    bestand: 'Completen.txt',
     inhoud: 'Psalmen: 50, 69, 142\n\nBerouw en overgave voor de nacht. Psalm 50 is de grote boetepsalm: "Ontferm U over mij, o God." De andere psalmen drukken nood, vertrouwen en het verlangen naar Gods leiding uit. De dag wordt afgesloten door zichzelf aan Gods bescherming toe te vertrouwen.\n\nSymboliek: berouw en overgave.',
   },
   {
@@ -33,6 +95,8 @@ const uren = [
     accent: 'text-[#ebd7a9]',
     ring: 0,
     dot: '#8c4a35',
+    kernvers: 'Psalm 50:4',
+    bestand: 'Middernachtdienst.txt',
     inhoud: 'Psalmen: onder andere 50, 118, 120-133\n\nWaakzaamheid en verwachting van Christus. De nacht herinnert aan de gelijkenis van de Bruidegom die onverwacht komt. Psalm 118 benadrukt trouw aan Gods geboden; de opgangspsalmen richten het hart omhoog. Het centrale thema is: wees wakker en bereid de Heer te ontmoeten.\n\nSymboliek: waakzaamheid en verwachting.',
   },
   {
@@ -44,6 +108,8 @@ const uren = [
     accent: 'text-[#2e1b13]',
     ring: 3,
     dot: '#d9c07a',
+    kernvers: 'Psalm 3:6',
+    bestand: 'Metten.txt',
     inhoud: 'Psalmen: 3, 37, 62, 87, 102, 142\n\nVan duisternis naar licht. De zes psalmen, de Hexapsalmos, bewegen tussen nood, berouw, verlangen naar God en vertrouwen op Zijn barmhartigheid. Terwijl de nieuwe dag nadert, wacht de Kerk op het licht. Metten krijgt daardoor ook een sterke opstandingsbetekenis.\n\nSymboliek: van duisternis naar licht.',
   },
   {
@@ -55,6 +121,8 @@ const uren = [
     accent: 'text-[#2a1b11]',
     ring: 6,
     dot: '#f0d589',
+    kernvers: 'Psalm 5:4',
+    bestand: 'Eerste uur.txt',
     inhoud: 'Psalmen: 5, 89, 100\n\nHeiliging van het begin van de dag. Psalm 5 spreekt expliciet over het ochtendgebed. Psalm 89 confronteert ons met de kortheid van het menselijke leven. Psalm 100 vraagt om een zuiver leven. De nieuwe dag wordt aan God opgedragen.\n\nSymboliek: heiliging van de nieuwe dag.',
   },
   {
@@ -66,6 +134,8 @@ const uren = [
     accent: 'text-[#f5ebd7]',
     ring: 9,
     dot: '#5d8f62',
+    kernvers: 'Psalm 16:8',
+    bestand: 'Derde uur.txt',
     inhoud: 'Psalmen: 16, 24, 50\n\nDe komst van de Heilige Geest. Het Derde Uur wordt in het bijzonder verbonden met Pinksteren: op het derde uur daalde de Heilige Geest neer over de apostelen. De psalmen vragen om bescherming, leiding, reiniging en een vernieuwde geest.\n\nSymboliek: de Heilige Geest vernieuwt de mens en leidt hem door de dag.',
   },
   {
@@ -77,6 +147,8 @@ const uren = [
     accent: 'text-[#2a1b11]',
     ring: 12,
     dot: '#d3bb52',
+    kernvers: 'Psalm 53:4',
+    bestand: 'Zesde uur.txt',
     inhoud: 'Psalmen: 53, 54, 90\n\nDe Kruisiging van Christus. Rond het zesde uur werd Christus gekruisigd. De psalmen spreken over vijanden, beproeving en Gods bescherming. Midden op de dag richt de Kerk haar blik daarom op het Kruis en Christus\' lijden.\n\nSymboliek: de Kruisiging van Christus.',
   },
   {
@@ -88,7 +160,10 @@ const uren = [
     accent: 'text-[#2c2016]',
     ring: 15,
     dot: '#efe0c2',
-    inhoud: 'Psalmen: 83, 84, 85\n\nDe dood van Christus aan het Kruis. Het negende uur herdenkt het uur waarop Christus Zijn geest gaf. De psalmen spreken over verlangen naar Gods huis, barmhartigheid, verlossing en de weg naar God. Het uur vormt tegelijk de overgang naar Vespers en daarmee naar een nieuwe liturgische dag.\n\nSymboliek: de dood van Christus en de overgang naar een nieuwe kerkelijke dag.',
+    kernvers: 'Psalm 84 (85):11',
+    bestand: 'Negende uur.txt',
+    inhoud: 'Het negende uur, rond 15 uur wereldse tijd, verbindt de dood van Christus aan het kruis met de voltooiing van de heilsgeschiedenis: de terugkeer uit de ballingschap, de vergeving van zonden en Gods goedheid. Juist doorleefd berouw en verdriet kunnen vreugde dieper maken.\n\nHet is ook een gelegenheid om midden op de middag dank te zeggen voor Gods zegeningen. Hij heeft je tot dit uur geleid; er is altijd iets om dankjewel voor te zeggen. Dank is een solide fundament onder het geestelijk leven.\n\nPsalm 84 (85) richt zich tot God en verhaalt hoe Hij ons goedgezind is wanneer wij ons tot Hem wenden. Vanaf vers 9 klinkt: "Ik zal luisteren naar wat God in mij zegt." God spreekt in ons hart. Kunnen wij Zijn stem horen te midden van ons drukke bestaan?\n\nPsalm 84 (85) is passend voor het negende uur.',
+    psalm: { titel: 'Psalm 84 (85)', tekst: psalmNegendeUur },
   },
 ];
 
@@ -102,11 +177,50 @@ function polar(cx: number, cy: number, r: number, angleDeg: number) {
   };
 }
 
+function parseUurBestand(raw: string) {
+  const regels = raw.replace(/\r/g, '').split('\n');
+  const nietLeeg = regels.findIndex((regel) => regel.trim());
+  const kernversRegel = regels.find((regel) => /^Kernvers\s*:?/i.test(regel.trim()));
+  const koppen = [...raw.matchAll(/^(Psalm|Ode)\s+[^\n]+$/gim)];
+  const psalmen = koppen.map((match, index) => {
+    const start = match.index ?? 0;
+    const einde = koppen[index + 1]?.index ?? raw.length;
+    return { titel: match[0].trim(), tekst: raw.slice(start, einde).trim() };
+  });
+  return {
+    inhoud: raw.trim(),
+    kernvers: kernversRegel?.replace(/^Kernvers\s*:?\s*/i, '').trim(),
+    psalmen,
+    titel: nietLeeg >= 0 ? regels[nietLeeg].trim() : undefined,
+  };
+}
+
 export default function UrenCyclus() {
   const [open, setOpen] = useState<number | null>(null);
+  const [psalmOpen, setPsalmOpen] = useState<{ titel: string; tekst: string } | null>(null);
+  const [details, setDetails] = useState<Record<number, ReturnType<typeof parseUurBestand>>>({});
   const [hovered, setHovered] = useState<number | null>(null);
   const activeIndex = hovered ?? open ?? 0;
   const activeHour = uren[activeIndex]?.ring ?? 18;
+
+  useEffect(() => {
+    let actief = true;
+    Promise.all(
+      uren.map(async (uur, index) => {
+        if (!uur.bestand) return [index, null] as const;
+        const response = await fetch(`/data/uren/${encodeURIComponent(uur.bestand)}`);
+        if (!response.ok) return [index, null] as const;
+        return [index, parseUurBestand(await response.text())] as const;
+      }),
+    )
+      .then((geladen) => {
+        if (actief) setDetails(Object.fromEntries(geladen.filter(([, detail]) => detail !== null)));
+      })
+      .catch(() => undefined);
+    return () => {
+      actief = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (open === null) return;
@@ -190,6 +304,7 @@ export default function UrenCyclus() {
         <div className="grid gap-3 sm:grid-cols-2 md:pt-2">
           {uren.map((uur, index) => {
             const isActive = activeIndex === index;
+            const detail = details[index];
             return (
               <div
                 key={`${uur.naam}-${index}`}
@@ -215,6 +330,7 @@ export default function UrenCyclus() {
                       <Clock3 className="h-3.5 w-3.5" />
                       {uur.tijd}
                     </span>
+                    <span className="mt-1 block truncate text-xs font-semibold text-gold-deep">Kernvers: {detail?.kernvers ?? uur.kernvers}</span>
                   </span>
                   <ChevronDown className="h-5 w-5 shrink-0 text-[#d4aa3d]" />
                 </button>
@@ -226,16 +342,42 @@ export default function UrenCyclus() {
         {open !== null && (
           <div className="fixed inset-0 z-[85] flex items-end justify-center bg-bark/75 p-0 backdrop-blur-sm sm:items-center sm:p-6" onClick={() => setOpen(null)}>
             <div role="dialog" aria-modal="true" aria-label={uren[open].naam} className="paper card-shadow max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl text-ink sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
+              {(() => {
+                const detail = details[open];
+                const inhoud = detail?.inhoud ?? uren[open].inhoud;
+                const psalmen = detail?.psalmen?.length ? detail.psalmen : uren[open].psalm ? [uren[open].psalm] : [];
+                return (
+                  <>
               <div className="flex items-start justify-between gap-4 rounded-t-2xl bg-bark px-6 py-5 text-cream">
                 <div>
                   <p className="text-[11px] font-bold tracking-[0.28em] text-[#f0cf7b] uppercase">{uren[open].tijd}</p>
                   <h2 className="font-display mt-1 text-3xl font-semibold text-[#f5ebd7]">{uren[open].naam}</h2>
-                  <p className="mt-1 text-xs text-[#d2ba8d]">{uren[open].taal}</p>
+                  <p className="mt-1 text-xs text-[#d2ba8d]">Kernvers: {detail?.kernvers ?? uren[open].kernvers}</p>
                 </div>
                 <button type="button" onClick={() => setOpen(null)} className="rounded-full p-2 text-[#f4ecda] hover:bg-white/10" aria-label="Sluiten"><X className="h-5 w-5" /></button>
               </div>
               <div className="px-6 py-6 text-base leading-relaxed text-ink-soft">
-                <p className="whitespace-pre-line">{uren[open].inhoud}</p>
+                <p className="whitespace-pre-line">{inhoud}</p>
+                {psalmen.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{psalmen.map((psalm) => (
+                  <button key={psalm.titel} type="button" onClick={() => setPsalmOpen(psalm)} className="rounded-full border border-gold/50 bg-gold-pale px-4 py-2 text-sm font-bold text-gold-deep hover:bg-gold-light">Lees {psalm.titel}</button>
+                ))}</div>}
+              </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+
+        {psalmOpen && (
+          <div className="fixed inset-0 z-[95] flex items-end justify-center bg-bark/80 p-0 backdrop-blur-sm sm:items-center sm:p-6" onClick={() => setPsalmOpen(null)}>
+            <div role="dialog" aria-modal="true" aria-label={psalmOpen.titel} className="paper card-shadow max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl text-ink sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
+              <div className="flex items-center justify-between gap-4 rounded-t-2xl bg-bark px-6 py-5 text-cream">
+                <h2 className="font-display text-3xl font-semibold">{psalmOpen.titel}</h2>
+                <button type="button" onClick={() => setPsalmOpen(null)} className="rounded-full p-2 hover:bg-white/10" aria-label="Sluiten"><X className="h-5 w-5" /></button>
+              </div>
+              <div className="px-6 py-6 text-base leading-relaxed text-ink-soft">
+                <p className="whitespace-pre-line">{psalmOpen.tekst}</p>
               </div>
             </div>
           </div>
