@@ -192,8 +192,9 @@ function parseUurBestand(raw: string) {
     const einde = koppen[index + 1]?.index ?? raw.length;
     return { titel: match[0].trim(), tekst: raw.slice(start, einde).trim() };
   });
+  const inhoud = koppen.length > 0 ? raw.slice(0, koppen[0].index ?? 0).trim() : raw.trim();
   return {
-    inhoud: raw.trim(),
+    inhoud,
     kernvers: kernversRegel?.replace(/^Kernvers\s*:?\s*/i, '').trim(),
     kernversTekst,
     psalmen,
