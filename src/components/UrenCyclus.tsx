@@ -205,7 +205,7 @@ export default function UrenCyclus() {
 
   useEffect(() => {
     let actief = true;
-    Promise.all(
+    Promise.allSettled(
       uren.map(async (uur, index) => {
         if (!uur.bestand) return [index, null] as const;
         const response = await fetch(`/data/uren/${encodeURIComponent(uur.bestand)}`);
@@ -213,8 +213,13 @@ export default function UrenCyclus() {
         return [index, parseUurBestand(await response.text())] as const;
       }),
     )
-      .then((geladen) => {
-        if (actief) setDetails(Object.fromEntries(geladen.filter(([, detail]) => detail !== null)));
+      .then((resultaten) => {
+        if (!actief) return;
+        const geladen: Array<readonly [number, ReturnType<typeof parseUurBestand>]> = resultaten
+          .filter((resultaat): resultaat is PromiseFulfilledResult<readonly [number, ReturnType<typeof parseUurBestand> | null]> => resultaat.status === 'fulfilled')
+          .map((resultaat) => resultaat.value)
+          .filter(([, detail]): detail is ReturnType<typeof parseUurBestand> => detail !== null);
+        setDetails(Object.fromEntries(geladen));
       })
       .catch(() => undefined);
     return () => {
@@ -344,7 +349,7 @@ export default function UrenCyclus() {
             <div role="dialog" aria-modal="true" aria-label={uren[open].naam} className="paper card-shadow max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl text-ink sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
               {(() => {
                 const detail = details[open];
-                const inhoud = detail?.inhoud ?? uren[open].inhoud;
+                const inhoud = detail?.inhoud ?? (details[open] === undefined ? 'De volledige diensttekst wordt geladen…' : uren[open].inhoud);
                 const psalmen = detail?.psalmen?.length ? detail.psalmen : uren[open].psalm ? [uren[open].psalm] : [];
                 return (
                   <>
