@@ -58,20 +58,11 @@ const uren: Uur[] = [
     kernvers: '50:12',
     bestand: 'Completen.txt',
     psalmBestand: 'Completen psalm.txt',
-    inhoud: `Completen
+    inhoud: `Als je in een klooster overnacht, zijn de completen de laatste gezamenlijke dienst van het getijdengebed voordat je gaat slapen. Thuis kan dit het gebedsmoment zijn waarop je de wereldse dag afsluit. Het is een mooie gelegenheid om God te danken voor de zaken die goed zijn gegaan en terug te kijken op je dag.
 
-  Psalm 50 (51)
-  Kernvers: 50:12
-  Schep een rein hart in mij, God,
-  en vernieuw in mijn binnenste een oprechte geest.
+  Natuurlijk heb je ook dingen gedaan waar je minder blij mee bent of waarvoor je je ronduit schaamt. Daarvoor kennen we het begrip 'zonde'. Voordat je jezelf de put in denkt, is het goed om te weten dat het Griekse woord voor zonde (amartia) 'naast het doel schieten' betekent. Het is niet het einde van de wereld. Bovendien is God de rechter, niet jijzelf. Dit besef is belangrijk voor de moderne mens die zoveel onrealistische eisen aan zichzelf stelt.
 
-  De Oosters-orthodoxe (Byzantijnse) tijdrekening laat net als de Joodse de dag beginnen met het vallen van de avond. Liturgisch gezien begint dus bijvoorbeeld de zondag al op zaterdagavond. Dit gebruik vind je nog terug in de viering van pakjesavond: 5 december is de vooravond van het feest van de Heilige Nikolaas op 6 december. Zo gek is dit niet, je bereidt je vaak 's avonds voor op de volgende dag.
-
-  Als je meer mee wilt bewegen volgens het kerkelijke ritme zou je het begin van de avond als een nieuw start kunnen gaan zien. Je sluit je bezigheden van overdag af en maakt een bewuste overgang. Natuurlijk is het niet altijd mogelijk om voor het avondeten de uitgekozen drie teksten te bidden, laat staan zoals in een klooster de vespers te vieren. Je kunt misschien wel het licht bij je iconen aansteken, eventueel wat wierook branden en een aantal verzen lezen.
-
-  Psalm 103 (104) wordt wel de scheppingspsalm genoemd, want het begin van een nieuwe liturgische dag valt samen met het begin van de heilsgeschiedenis van de schepping. De psalmist geeft een poëtisch relaas van het ontstaan van de aarde. Dat gaat niet zoals in een geschiedenis- of natuurkundeboek maar als een lofzang op Gods grote, scheppende kracht.
-
-  In de heilsgeschiedenis komt na de schepping de val van Adam en Eva, omdat ze ongehoorzaam zijn aan Gods gebod. God verbant hen uit het paradijs waarnaar Psalm 103 (104) verwijst. Vanaf nu heeft de mens geen directe omgang met God meer. Vandaar de roep tot God om ons te verhoren in Psalm 140 (141). Door de val zijn ook mensen onderling vreemden en zelfs vijanden geworden. Vaak is het beter een wachter voor je mond te plaatsen zodat je eerst goed kunt bedenken wat je eigenlijk wil zeggen. De vesperdienst eindigt gelukkig niet in mineur, want de komst van Christus wordt al gevierd met een tekst uit het Evangelie van Lukas (2:29-32), die in veel liturgische tradities voorkomt. In Griekse psaltermanuscripten, die vaak naast de Psalmen het Bijbelboek Oden bevatten, komt deze tekst voor als Ode 13. In het Westen kennen wij het vaak onder de Latijnse naam Nunc dimittis. Dat zijn de eerste twee woorden van dit gebed van Simeon. Wanneer hij het kind Jezus in zijn armen neemt, weet hij dat deze baby degene is die hij zijn leven lang heeft verwacht. Dit is een mooi moment om een kaars of lampade aan te steken om de komst van het licht te vieren.`,
+  En ook al heb je iets verschrikkelijks gedaan: bij God is altijd vergeving. Jezus Christus is niet gekomen voor de rechtvaardigen maar om zondaars te redden. Psalm 50 (51), die in zoveel Orthodoxe diensten voorkomt, herinnert ons dagelijks hieraan. Zelfs voor David, die zijn trouwe strijdmakker Uria de dood in stuurt om zijn vrouw in te pikken, is er hoop. Nadat de profeet Nathan hem uit de sluimer van zonde heeft wakker geschud, toont hij een diep berouw. Deze psalm laat zien dat er altijd een nieuw begin mogelijk is.`,
   },
   {
     nr: 3,
