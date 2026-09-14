@@ -58,7 +58,20 @@ const uren: Uur[] = [
     kernvers: '50:12',
     bestand: 'Completen.txt',
     psalmBestand: 'Completen psalm.txt',
-    inhoud: 'Psalmen: 50, 69, 142\n\nBerouw en overgave voor de nacht. Psalm 50 is de grote boetepsalm: "Ontferm U over mij, o God." De andere psalmen drukken nood, vertrouwen en het verlangen naar Gods leiding uit. De dag wordt afgesloten door zichzelf aan Gods bescherming toe te vertrouwen.\n\nSymboliek: berouw en overgave.',
+    inhoud: `Completen
+
+  Psalm 50 (51)
+  Kernvers: 50:12
+  Schep een rein hart in mij, God,
+  en vernieuw in mijn binnenste een oprechte geest.
+
+  De Oosters-orthodoxe (Byzantijnse) tijdrekening laat net als de Joodse de dag beginnen met het vallen van de avond. Liturgisch gezien begint dus bijvoorbeeld de zondag al op zaterdagavond. Dit gebruik vind je nog terug in de viering van pakjesavond: 5 december is de vooravond van het feest van de Heilige Nikolaas op 6 december. Zo gek is dit niet, je bereidt je vaak 's avonds voor op de volgende dag.
+
+  Als je meer mee wilt bewegen volgens het kerkelijke ritme zou je het begin van de avond als een nieuw start kunnen gaan zien. Je sluit je bezigheden van overdag af en maakt een bewuste overgang. Natuurlijk is het niet altijd mogelijk om voor het avondeten de uitgekozen drie teksten te bidden, laat staan zoals in een klooster de vespers te vieren. Je kunt misschien wel het licht bij je iconen aansteken, eventueel wat wierook branden en een aantal verzen lezen.
+
+  Psalm 103 (104) wordt wel de scheppingspsalm genoemd, want het begin van een nieuwe liturgische dag valt samen met het begin van de heilsgeschiedenis van de schepping. De psalmist geeft een poëtisch relaas van het ontstaan van de aarde. Dat gaat niet zoals in een geschiedenis- of natuurkundeboek maar als een lofzang op Gods grote, scheppende kracht.
+
+  In de heilsgeschiedenis komt na de schepping de val van Adam en Eva, omdat ze ongehoorzaam zijn aan Gods gebod. God verbant hen uit het paradijs waarnaar Psalm 103 (104) verwijst. Vanaf nu heeft de mens geen directe omgang met God meer. Vandaar de roep tot God om ons te verhoren in Psalm 140 (141). Door de val zijn ook mensen onderling vreemden en zelfs vijanden geworden. Vaak is het beter een wachter voor je mond te plaatsen zodat je eerst goed kunt bedenken wat je eigenlijk wil zeggen. De vesperdienst eindigt gelukkig niet in mineur, want de komst van Christus wordt al gevierd met een tekst uit het Evangelie van Lukas (2:29-32), die in veel liturgische tradities voorkomt. In Griekse psaltermanuscripten, die vaak naast de Psalmen het Bijbelboek Oden bevatten, komt deze tekst voor als Ode 13. In het Westen kennen wij het vaak onder de Latijnse naam Nunc dimittis. Dat zijn de eerste twee woorden van dit gebed van Simeon. Wanneer hij het kind Jezus in zijn armen neemt, weet hij dat deze baby degene is die hij zijn leven lang heeft verwacht. Dit is een mooi moment om een kaars of lampade aan te steken om de komst van het licht te vieren.`,
   },
   {
     nr: 3,
@@ -72,7 +85,24 @@ const uren: Uur[] = [
     kernvers: '118:12',
     bestand: 'Middernachtdienst.txt',
     psalmBestand: 'Middernachtdienst psalm.txt',
-    inhoud: 'Psalmen: onder andere 50, 118, 120-133\n\nWaakzaamheid en verwachting van Christus. De nacht herinnert aan de gelijkenis van de Bruidegom die onverwacht komt. Psalm 118 benadrukt trouw aan Gods geboden; de opgangspsalmen richten het hart omhoog. Het centrale thema is: wees wakker en bereid de Heer te ontmoeten.\n\nSymboliek: waakzaamheid en verwachting.',
+    inhoud: `Middernachtdienst
+
+  Kernvers 118:12
+  Gezegend bent U, Heer,
+  leer mij uw voorschriften.
+
+  Psalm 118 (119) is de langste psalm en één van de belangrijkste bestanddelen van de middernachtdienst volgens het huidige Oosters-orthodoxe officie. Monniken en monialen bidden deze vroeg in de ochtend, volgens het ritme van hun klooster. Deze psalm wordt ook gelezen tijdens de wake voor de overledene. Orthodoxe gelovigen kennen hem ook van Goede Vrijdag, wanneer de psalm wordt gelezen na de dienst van de graflegging, bij de icoon van Christus in het graf, de epitaaf.
+
+  Een belangrijk thema van Psalm 118 (119) is dat je de wet, voorschriften, geboden, woorden en getuigenissen van God in je hart koestert. De psalmist wil ze niet vergeten, ze beter leren kennen en doorgronden. Ze geven Gods dienaar vreugde en leven. Dit thema resoneert in de woorden van Jezus:
+
+  17 Denk niet dat Ik gekomen ben om de Wet of de Profeten af te schaffen. Ik ben niet gekomen om ze af te schaffen, maar om ze tot vervulling te brengen.
+  Matteüs 5:17
+
+  Naast een studie, baan en/of gezin is het lastig om tijd te vinden om deze psalm in zijn geheel te lezen. Je kunt eventueel als je 's nachts wakker wordt het refrein zeggen: 'Gezegend bent U, Heer, leer mij uw voorschriften.'
+
+  En als je niet kunt slapen, zou je kunnen opstaan, licht maken bij je iconen en de psalm rustig lezen. Hij brengt je gedachten tot rust en maakt je bewust van Gods aanwezigheid in je leven.
+
+  Eventueel zou je je gebedssnoer erbij kunnen pakken en een aantal keren het Jezusgebed herhalen: 'Heer, Jezus Christus, Zoon van God, ontferm u over mij'.`,
   },
   {
     nr: 4,
