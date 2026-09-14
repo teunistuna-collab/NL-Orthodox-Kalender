@@ -29,7 +29,22 @@ const uren: Uur[] = [
     kernvers: '103(104):24',
     bestand: 'Vespers.txt',
     psalmBestand: 'Vespers psalm.txt',
-    inhoud: 'Psalmen: 103; 140, 141, 129, 116\n\nSchepping en terugkeer tot God. Psalm 103 bezingt God als Schepper en opent de nieuwe kerkelijke dag. Bij "Heer, ik roep tot U" wordt het avondgebed als wierook tot God verheven. De mens brengt de voorbije dag bij God en vraagt om vergeving en bewaring in de nacht.\n\nSymboliek: schepping en avondoffer.',
+    inhoud: `Vespers
+
+  Psalm 103 (104)
+  Kernvers: 103(104):24
+  Hoe groots zijn uw werken, Heer,
+  met wijsheid hebt U alles gemaakt.
+
+  De Oosters-orthodoxe (Byzantijnse) tijdrekening laat net als de Joodse de dag beginnen met het vallen van de avond. Liturgisch gezien begint dus bijvoorbeeld de zondag al op zaterdagavond. Zo gek is dit niet: je bereidt je vaak 's avonds voor op de volgende dag.
+
+  Als je meer mee wilt bewegen volgens het kerkelijke ritme zou je het begin van de avond als een nieuwe start kunnen gaan zien. Je sluit je bezigheden van overdag af en maakt een bewuste overgang. Je kunt het licht bij je iconen aansteken, eventueel wat wierook branden en een aantal verzen lezen.
+
+  Psalm 103 (104) wordt de scheppingspsalm genoemd. Het begin van een nieuwe liturgische dag valt samen met het begin van de heilsgeschiedenis van de schepping. De psalmist geeft een poëtisch relaas van het ontstaan van de aarde als lofzang op Gods grote, scheppende kracht.
+
+  In de heilsgeschiedenis komt na de schepping de val van Adam en Eva. God verbant hen uit het paradijs waarnaar Psalm 103 (104) verwijst. Vandaar de roep tot God om ons te verhoren in Psalm 140 (141). Door de val zijn ook mensen onderling vreemden en zelfs vijanden geworden. Vaak is het beter een wachter voor je mond te plaatsen.
+
+  De vesperdienst eindigt gelukkig niet in mineur: de komst van Christus wordt al gevierd met een tekst uit het Evangelie van Lukas (2:29-32), die in veel liturgische tradities voorkomt. In het Westen kennen wij deze tekst vaak onder de Latijnse naam Nunc dimittis. Wanneer Simeon het kind Jezus in zijn armen neemt, weet hij dat deze baby degene is die hij zijn leven lang heeft verwacht. Dit is een mooi moment om een kaars of lampade aan te steken om de komst van het licht te vieren.`,
   },
   {
     nr: 2,
