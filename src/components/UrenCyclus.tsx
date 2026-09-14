@@ -142,10 +142,25 @@ function polar(cx: number, cy: number, r: number, angleDeg: number) {
 }
 
 function parseDienstBestand(raw: string) {
-  const regels = raw.replace(/\r/g, '').split('\n');
+  const schoon = raw.replace(/\r/g, '');
+  const regels = schoon.split('\n');
   const kernversIndex = regels.findIndex((regel) => /^Kernvers\s*:?/i.test(regel.trim()));
+  const onderdelen = [...schoon.matchAll(/^(Psalm|Ode)\s+[^\n]+$/gim)];
+  let tekst = schoon.trim();
+  if (onderdelen.length > 0) {
+    const eerste = onderdelen[0].index ?? 0;
+    const voorPsalm = schoon.slice(0, eerste).trim();
+    const naKernvers = kernversIndex >= 0 && eerste <= schoon.indexOf(regels[kernversIndex])
+      ? schoon.slice(schoon.indexOf(regels[kernversIndex]) + regels[kernversIndex].length).replace(/^\s+/, '')
+      : '';
+    const eindeKernvers = naKernvers.search(/\n\s*\n/);
+    const uitlegStart = eindeKernvers >= 0 ? naKernvers.slice(eindeKernvers).replace(/^\s+/, '') : '';
+    const volgendePsalm = onderdelen[1]?.index ?? schoon.length;
+    const uitleg = uitlegStart ? uitlegStart.slice(0, Math.max(0, volgendePsalm - (schoon.indexOf(regels[kernversIndex]) + regels[kernversIndex].length))).trim() : '';
+    tekst = [voorPsalm, uitleg].filter(Boolean).join('\n\n').trim();
+  }
   return {
-    tekst: raw.trim(),
+    tekst,
     kernvers: kernversIndex >= 0 ? regels[kernversIndex].replace(/^Kernvers\s*:?\s*/i, '').trim() : undefined,
     kernversTekst: kernversIndex >= 0 ? regels.slice(kernversIndex + 1).join('\n').split(/\n\s*\n/)[0].trim() : undefined,
   };
