@@ -1,169 +1,105 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown, Clock3, X } from 'lucide-react';
+import * as pdfjsLib from 'pdfjs-dist';
 
-interface Uur {
-  nr: number;
-  naam: string;
-  taal: string;
-  tijd: string;
-  kleur: string;
-  accent: string;
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+
+type PsalmMapping = {
+  title: string;
+  pdf: string;
+};
+
+type ServiceMapping = {
+  title: string;
+  time: string;
   ring: number;
   dot: string;
-  kernvers: string;
-  bestand: string;
-  psalmBestand: string;
-  inhoud: string;
-}
+  pdf: string;
+  psalms: PsalmMapping[];
+  kernvers: {
+    reference: string;
+    verses: string[];
+  };
+};
 
-const uren: Uur[] = [
+const serviceConfig: ServiceMapping[] = [
   {
-    nr: 1,
-    naam: 'Vespers',
-    taal: 'Vespers · Εσπερινός',
-    tijd: '18:00',
-    kleur: 'bg-[#b96d29]',
-    accent: 'text-[#f0cf7b]',
+    title: 'Vespers',
+    time: '18:00',
     ring: 18,
     dot: '#d9a645',
-    kernvers: '103(104):24',
-    bestand: 'Vespers.txt',
-    psalmBestand: 'Vespers psalm.txt',
-    inhoud: `Vespers
-
-  Psalm 103 (104)
-  Kernvers: 103(104):24
-  Hoe groots zijn uw werken, Heer,
-  met wijsheid hebt U alles gemaakt.
-
-  De Oosters-orthodoxe (Byzantijnse) tijdrekening laat net als de Joodse de dag beginnen met het vallen van de avond. Liturgisch gezien begint dus bijvoorbeeld de zondag al op zaterdagavond. Zo gek is dit niet: je bereidt je vaak 's avonds voor op de volgende dag.
-
-  Als je meer mee wilt bewegen volgens het kerkelijke ritme zou je het begin van de avond als een nieuwe start kunnen gaan zien. Je sluit je bezigheden van overdag af en maakt een bewuste overgang. Je kunt het licht bij je iconen aansteken, eventueel wat wierook branden en een aantal verzen lezen.
-
-  Psalm 103 (104) wordt de scheppingspsalm genoemd. Het begin van een nieuwe liturgische dag valt samen met het begin van de heilsgeschiedenis van de schepping. De psalmist geeft een poëtisch relaas van het ontstaan van de aarde als lofzang op Gods grote, scheppende kracht.
-
-  In de heilsgeschiedenis komt na de schepping de val van Adam en Eva. God verbant hen uit het paradijs waarnaar Psalm 103 (104) verwijst. Vandaar de roep tot God om ons te verhoren in Psalm 140 (141). Door de val zijn ook mensen onderling vreemden en zelfs vijanden geworden. Vaak is het beter een wachter voor je mond te plaatsen.
-
-  De vesperdienst eindigt gelukkig niet in mineur: de komst van Christus wordt al gevierd met een tekst uit het Evangelie van Lukas (2:29-32), die in veel liturgische tradities voorkomt. In het Westen kennen wij deze tekst vaak onder de Latijnse naam Nunc dimittis. Wanneer Simeon het kind Jezus in zijn armen neemt, weet hij dat deze baby degene is die hij zijn leven lang heeft verwacht. Dit is een mooi moment om een kaars of lampade aan te steken om de komst van het licht te vieren.`,
+    pdf: '/data/pdfs/Vespers.pdf',
+    kernvers: { reference: 'Psalm Kernvers: 103(104):24', verses: ['Hoe groots zijn uw werken,', 'Heer, met wijsheid hebt U alles gemaakt.'] },
+    psalms: [
+      { title: 'Psalm 103', pdf: '/data/pdfs/Psalm 103.pdf' },
+      { title: 'Psalm 140', pdf: '/data/pdfs/Psalm 140.pdf' },
+    ],
   },
   {
-    nr: 2,
-    naam: 'Completen',
-    taal: 'Apo-deipnon · Ἀποδειπνικόν',
-    tijd: '21:00',
-    kleur: 'bg-[#8b5d2d]',
-    accent: 'text-[#ead8a6]',
+    title: 'Completen',
+    time: '21:00',
     ring: 21,
     dot: '#b76b39',
-    kernvers: '50:12',
-    bestand: 'Completen.txt',
-    psalmBestand: 'Completen psalm.txt',
-    inhoud: `Als je in een klooster overnacht, zijn de completen de laatste gezamenlijke dienst van het getijdengebed voordat je gaat slapen. Thuis kan dit het gebedsmoment zijn waarop je de wereldse dag afsluit. Het is een mooie gelegenheid om God te danken voor de zaken die goed zijn gegaan en terug te kijken op je dag.
-
-  Natuurlijk heb je ook dingen gedaan waar je minder blij mee bent of waarvoor je je ronduit schaamt. Daarvoor kennen we het begrip 'zonde'. Voordat je jezelf de put in denkt, is het goed om te weten dat het Griekse woord voor zonde (amartia) 'naast het doel schieten' betekent. Het is niet het einde van de wereld. Bovendien is God de rechter, niet jijzelf. Dit besef is belangrijk voor de moderne mens die zoveel onrealistische eisen aan zichzelf stelt.
-
-  En ook al heb je iets verschrikkelijks gedaan: bij God is altijd vergeving. Jezus Christus is niet gekomen voor de rechtvaardigen maar om zondaars te redden. Psalm 50 (51), die in zoveel Orthodoxe diensten voorkomt, herinnert ons dagelijks hieraan. Zelfs voor David, die zijn trouwe strijdmakker Uria de dood in stuurt om zijn vrouw in te pikken, is er hoop. Nadat de profeet Nathan hem uit de sluimer van zonde heeft wakker geschud, toont hij een diep berouw. Deze psalm laat zien dat er altijd een nieuw begin mogelijk is.`,
+    pdf: '/data/pdfs/Completen.pdf',
+    kernvers: { reference: 'Psalm Kernvers: 50:12', verses: ['Schep een rein hart in mij, God,', 'en vernieuw in mijn binnenste een oprechte geest.'] },
+    psalms: [{ title: 'Psalm 50', pdf: '/data/pdfs/Psalm 50.pdf' }],
   },
   {
-    nr: 3,
-    naam: 'Middernachtdienst',
-    taal: 'Mesonyktikon · Μεσονυκτικόν',
-    tijd: '00:00',
-    kleur: 'bg-[#734b36]',
-    accent: 'text-[#ebd7a9]',
+    title: 'Middernachtdienst',
+    time: '00:00',
     ring: 0,
     dot: '#8c4a35',
-    kernvers: '118:12',
-    bestand: 'Middernachtdienst.txt',
-    psalmBestand: 'Middernachtdienst psalm.txt',
-    inhoud: `Middernachtdienst
-
-  Kernvers 118:12
-  Gezegend bent U, Heer,
-  leer mij uw voorschriften.
-
-  Psalm 118 (119) is de langste psalm en één van de belangrijkste bestanddelen van de middernachtdienst volgens het huidige Oosters-orthodoxe officie. Monniken en monialen bidden deze vroeg in de ochtend, volgens het ritme van hun klooster. Deze psalm wordt ook gelezen tijdens de wake voor de overledene. Orthodoxe gelovigen kennen hem ook van Goede Vrijdag, wanneer de psalm wordt gelezen na de dienst van de graflegging, bij de icoon van Christus in het graf, de epitaaf.
-
-  Een belangrijk thema van Psalm 118 (119) is dat je de wet, voorschriften, geboden, woorden en getuigenissen van God in je hart koestert. De psalmist wil ze niet vergeten, ze beter leren kennen en doorgronden. Ze geven Gods dienaar vreugde en leven. Dit thema resoneert in de woorden van Jezus:
-
-  17 Denk niet dat Ik gekomen ben om de Wet of de Profeten af te schaffen. Ik ben niet gekomen om ze af te schaffen, maar om ze tot vervulling te brengen.
-  Matteüs 5:17
-
-  Naast een studie, baan en/of gezin is het lastig om tijd te vinden om deze psalm in zijn geheel te lezen. Je kunt eventueel als je 's nachts wakker wordt het refrein zeggen: 'Gezegend bent U, Heer, leer mij uw voorschriften.'
-
-  En als je niet kunt slapen, zou je kunnen opstaan, licht maken bij je iconen en de psalm rustig lezen. Hij brengt je gedachten tot rust en maakt je bewust van Gods aanwezigheid in je leven.
-
-  Eventueel zou je je gebedssnoer erbij kunnen pakken en een aantal keren het Jezusgebed herhalen: 'Heer, Jezus Christus, Zoon van God, ontferm u over mij'.`,
+    pdf: '/data/pdfs/Middernachtdienst.pdf',
+    kernvers: { reference: 'Psalm Kernvers: 118:12', verses: ['Gezegend bent U, Heer,', 'leer mij uw voorschriften.'] },
+    psalms: [{ title: 'Psalm 118', pdf: '/data/pdfs/Psalm 118.pdf' }],
   },
   {
-    nr: 4,
-    naam: 'Metten',
-    taal: 'Orthros · Ὄρθρος',
-    tijd: '03:00',
-    kleur: 'bg-[#c8a06f]',
-    accent: 'text-[#2e1b13]',
+    title: 'Metten',
+    time: '03:00',
     ring: 3,
     dot: '#d9c07a',
-    kernvers: '62(63):9',
-    bestand: 'Metten.txt',
-    psalmBestand: 'Metten psalm.txt',
-    inhoud: 'Psalmen: 3, 37, 62, 87, 102, 142\n\nVan duisternis naar licht. De zes psalmen, de Hexapsalmos, bewegen tussen nood, berouw, verlangen naar God en vertrouwen op Zijn barmhartigheid. Terwijl de nieuwe dag nadert, wacht de Kerk op het licht. Metten krijgt daardoor ook een sterke opstandingsbetekenis.\n\nSymboliek: van duisternis naar licht.',
+    pdf: '/data/pdfs/Metten.pdf',
+    kernvers: { reference: 'Psalm Kernvers: 62(63):9', verses: ['Ik ben aan U gehecht, met heel mijn ziel,', 'uw rechterhand houdt mij vast.'] },
+    psalms: [
+      { title: 'Psalm 62', pdf: '/data/pdfs/Psalm 62.pdf' },
+      { title: 'Psalm 102', pdf: '/data/pdfs/Psalm 102.pdf' },
+    ],
   },
   {
-    nr: 5,
-    naam: 'Eerste Uur',
-    taal: 'Hora Prima · ὥρα πρώτη',
-    tijd: '06:00',
-    kleur: 'bg-[#d5b661]',
-    accent: 'text-[#2a1b11]',
+    title: 'Eerste Uur',
+    time: '06:00',
     ring: 6,
     dot: '#f0d589',
-    kernvers: '89(90):17',
-    bestand: 'Eerste uur.txt',
-    psalmBestand: 'Eerste uur psalm.txt',
-    inhoud: 'Psalmen: 5, 89, 100\n\nHeiliging van het begin van de dag. Psalm 5 spreekt expliciet over het ochtendgebed. Psalm 89 confronteert ons met de kortheid van het menselijke leven. Psalm 100 vraagt om een zuiver leven. De nieuwe dag wordt aan God opgedragen.\n\nSymboliek: heiliging van de nieuwe dag.',
+    pdf: '/data/pdfs/Eerste uur.pdf',
+    kernvers: { reference: 'Psalm Kernvers: 89(90):17', verses: ['Laat de glans van de Heer, onze God, op ons rusten.', 'Bevestig het werk van onze handen,', 'ja, het werk van onze handen, bevestig dat.'] },
+    psalms: [{ title: 'Psalm 89', pdf: '/data/pdfs/Psalm 89.pdf' }],
   },
   {
-    nr: 6,
-    naam: 'Derde Uur',
-    taal: 'Hora Tertia · ὥρα τρίτη',
-    tijd: '09:00',
-    kleur: 'bg-[#6f8f6d]',
-    accent: 'text-[#f5ebd7]',
+    title: 'Derde Uur',
+    time: '09:00',
     ring: 9,
     dot: '#5d8f62',
-    kernvers: 'Psalm 24(25):4',
-    bestand: 'Derde uur.txt',
-    psalmBestand: 'Derde uur psalm.txt',
-    inhoud: 'Psalmen: 16, 24, 50\n\nDe komst van de Heilige Geest. Het Derde Uur wordt in het bijzonder verbonden met Pinksteren: op het derde uur daalde de Heilige Geest neer over de apostelen. De psalmen vragen om bescherming, leiding, reiniging en een vernieuwde geest.\n\nSymboliek: de Heilige Geest vernieuwt de mens en leidt hem door de dag.',
+    pdf: '/data/pdfs/Derde uur.pdf',
+    kernvers: { reference: 'Psalm Kernvers: 24(25):4', verses: ['Heer, maak mij uw wegen bekend', 'en leer mij uw paden'] },
+    psalms: [{ title: 'Psalm 24', pdf: '/data/pdfs/Psalm 24.pdf' }],
   },
   {
-    nr: 7,
-    naam: 'Zesde Uur',
-    taal: 'Hora Sexta · ὥρα ἕκτη',
-    tijd: '12:00',
-    kleur: 'bg-[#d9bb52]',
-    accent: 'text-[#2a1b11]',
+    title: 'Zesde Uur',
+    time: '12:00',
     ring: 12,
     dot: '#d3bb52',
-    kernvers: '90(91):9-10',
-    bestand: 'Zesde uur.txt',
-    psalmBestand: 'Zesde uur psalm.txt',
-    inhoud: 'Psalmen: 53, 54, 90\n\nDe Kruisiging van Christus. Rond het zesde uur werd Christus gekruisigd. De psalmen spreken over vijanden, beproeving en Gods bescherming. Midden op de dag richt de Kerk haar blik daarom op het Kruis en Christus\' lijden.\n\nSymboliek: de Kruisiging van Christus.',
+    pdf: '/data/pdfs/Zesde uur.pdf',
+    kernvers: { reference: 'Psalm Kernvers: 90(91):9-10', verses: ['Als je de Allerhoogste tot je schuilplaats maakt,', 'zal het kwaad je niet bereiken,', 'geen plaag je tent ooit naderen.'] },
+    psalms: [{ title: 'Psalm 90', pdf: '/data/pdfs/Psalm 90.pdf' }],
   },
   {
-    nr: 8,
-    naam: 'Negende Uur',
-    taal: 'Hora Nona · ὥρα ἔνατη',
-    tijd: '15:00',
-    kleur: 'bg-[#d6c4a5]',
-    accent: 'text-[#2c2016]',
+    title: 'Negende Uur',
+    time: '15:00',
     ring: 15,
     dot: '#efe0c2',
-    kernvers: '84(85):11',
-    bestand: 'Negende uur.txt',
-    psalmBestand: 'Negende uur psalm.txt',
-    inhoud: 'Psalmen: 83, 84, 85\n\nDe dood van Christus aan het Kruis. Het negende uur herdenkt het uur waarop Christus Zijn geest gaf. De psalmen spreken over verlangen naar Gods huis, barmhartigheid, verlossing en de weg naar God. Het uur vormt tegelijk de overgang naar Vespers en daarmee naar een nieuwe liturgische dag.\n\nSymboliek: de dood van Christus en de overgang naar een nieuwe kerkelijke dag.',
+    pdf: '/data/pdfs/Negende uur.pdf',
+    kernvers: { reference: 'Psalm Kernvers: 84(85):11', verses: ['Barmhartigheid en waarheid omhelzen elkaar,', 'rechtvaardigheid en vrede begroeten elkaar met een kus.'] },
+    psalms: [{ title: 'Psalm 84', pdf: '/data/pdfs/Psalm 84.pdf' }],
   },
 ];
 
@@ -177,39 +113,95 @@ function polar(cx: number, cy: number, r: number, angleDeg: number) {
   };
 }
 
-function parseDienstBestand(raw: string) {
-  const schoon = raw.replace(/\r/g, '');
-  const regels = schoon.split('\n');
-  const kernversIndex = regels.findIndex((regel) => /^Kernvers\s*:?/i.test(regel.trim()));
-  const onderdelen = [...schoon.matchAll(/^(Psalm|Ode)\s+[^\n]+$/gim)];
-  let tekst = schoon.trim();
-  if (onderdelen.length > 0) {
-    const kernversPos = kernversIndex >= 0 ? schoon.indexOf(regels[kernversIndex]) : 0;
-    const eersteNaKernvers = onderdelen.find((onderdeel) => (onderdeel.index ?? 0) > kernversPos);
-    const afkapPositie = eersteNaKernvers?.index ?? onderdelen[0].index ?? schoon.length;
-    tekst = schoon.slice(0, afkapPositie).trim();
-  }
-  return {
-    tekst,
-    kernvers: kernversIndex >= 0 ? regels[kernversIndex].replace(/^Kernvers\s*:?\s*/i, '').trim() : undefined,
-    kernversTekst: kernversIndex >= 0 ? regels.slice(kernversIndex + 1).join('\n').split(/\n\s*\n/)[0].trim() : undefined,
-  };
-}
+type ModalState = {
+  serviceIndex: number;
+  selectedPsalm?: PsalmMapping;
+};
+
+type PdfLine = {
+  x: number;
+  text: string;
+};
 
 export default function UrenCyclus() {
   const [open, setOpen] = useState<number | null>(null);
-  const [details, setDetails] = useState<Record<number, { tekst: string; kernvers?: string; kernversTekst?: string }>>({});
-  const [psalmOpen, setPsalmOpen] = useState<{ titel: string; tekst: string } | null>(null);
+  const [modalState, setModalState] = useState<ModalState | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
+  const [pdfPages, setPdfPages] = useState<Array<Array<PdfLine>>>([]);
+  const [pdfStatus, setPdfStatus] = useState<'idle' | 'loading' | 'error' | 'done'>('idle');
+
   const activeIndex = hovered ?? open ?? 0;
-  const activeHour = uren[activeIndex]?.ring ?? 18;
+  const activeHour = serviceConfig[activeIndex]?.ring ?? 18;
+  const currentService = modalState !== null ? serviceConfig[modalState.serviceIndex] : serviceConfig[activeIndex];
+  const currentPdfUrl = modalState?.selectedPsalm ? modalState.selectedPsalm.pdf : currentService?.pdf ?? '';
+  const currentTitle = modalState?.selectedPsalm ? `${currentService.title} · ${modalState.selectedPsalm.title}` : currentService.title;
 
   useEffect(() => {
-    Promise.all(uren.map(async (uur, index) => {
-      const response = await fetch(`/data/uren/${encodeURIComponent(uur.bestand)}`);
-      return [index, parseDienstBestand(await response.text())] as const;
-    })).then((items) => setDetails(Object.fromEntries(items))).catch(() => undefined);
-  }, []);
+    if (open === null || !currentPdfUrl) {
+      setPdfPages([]);
+      setPdfStatus('idle');
+      return;
+    }
+
+    let active = true;
+    setPdfStatus('loading');
+    setPdfPages([]);
+
+    const parsePdf = async () => {
+      try {
+        const response = await fetch(currentPdfUrl);
+        if (!response.ok) throw new Error(`PDF is niet beschikbaar (${response.status})`);
+
+        const buffer = await response.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        const pages: Array<Array<PdfLine>> = [];
+
+        for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex += 1) {
+          const page = await pdf.getPage(pageIndex);
+          const textContent = await page.getTextContent();
+          const rows = new Map<number, Array<PdfLine>>();
+
+          for (const item of textContent.items) {
+            if ('str' in item && typeof item.str === 'string') {
+              const text = item.str.trim();
+              if (!text) continue;
+              const yKey = Math.round(Number(item.transform?.[5] ?? 0));
+              const row = rows.get(yKey) ?? [];
+              row.push({ x: Number(item.transform?.[4] ?? 0), text });
+              rows.set(yKey, row);
+            }
+          }
+
+          const pageLines = Array.from(rows.entries())
+            .sort((a, b) => b[0] - a[0])
+            .map(([, items]) => ({
+              x: Math.min(...items.map((entry) => entry.x)),
+              text: items
+                .sort((a, b) => a.x - b.x)
+                .map((entry) => entry.text)
+                .join(' '),
+            }))
+            .filter((line) => line.text.length > 0);
+
+          pages.push(pageLines);
+        }
+
+        if (!active) return;
+        setPdfPages(pages);
+        setPdfStatus('done');
+      } catch (error) {
+        if (!active) return;
+        console.error('PDF parsing failed', error);
+        setPdfStatus('error');
+      }
+    };
+
+    void parsePdf();
+
+    return () => {
+      active = false;
+    };
+  }, [currentPdfUrl, open]);
 
   useEffect(() => {
     if (open === null) return;
@@ -224,9 +216,61 @@ export default function UrenCyclus() {
     };
   }, [open]);
 
+  const openService = (serviceIndex: number) => {
+    setOpen(serviceIndex);
+    setModalState({ serviceIndex });
+  };
+
+  const openPsalm = (serviceIndex: number, psalm: PsalmMapping) => {
+    setOpen(serviceIndex);
+    setModalState({ serviceIndex, selectedPsalm: psalm });
+  };
+
+  const goToService = (serviceIndex: number) => {
+    setOpen(serviceIndex);
+    setModalState({ serviceIndex });
+  };
+
+  const previousService = () => {
+    if (open === null) return;
+    const nextIndex = (open - 1 + serviceConfig.length) % serviceConfig.length;
+    goToService(nextIndex);
+  };
+
+  const nextService = () => {
+    if (open === null) return;
+    const nextIndex = (open + 1) % serviceConfig.length;
+    goToService(nextIndex);
+  };
+
+  const closeModal = () => {
+    setOpen(null);
+    setModalState(null);
+  };
+
   return (
     <section id="cyclus" className="parchment-pattern bg-parchment py-16 text-ink sm:py-20">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 md:grid-cols-[320px_minmax(0,1fr)] md:items-start">
+      <div className="mx-auto max-w-6xl px-4">
+        <article className="paper card-shadow mb-8 border border-[#a48764] px-5 py-6 sm:px-8 sm:py-8">
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="mb-3 text-[10px] font-medium uppercase tracking-[0.3em] text-[#765b42]">De 24 uur</div>
+            <h2 className="font-display text-3xl font-medium text-[#35251b] sm:text-4xl">Het gebruik van de Psalmen in Oosters-Orthodoxe kerkdiensten</h2>
+            <div className="mx-auto my-5 h-px w-20 bg-[#b29269]" />
+          </div>
+          <div className="mx-auto max-w-3xl space-y-4 text-[15px] leading-[1.9] text-[#4b3628] sm:text-base">
+            <p>
+              Psalmen vormen in de Oosters-Orthodoxe traditie een zeer belangrijk bestanddeel van de kerkdiensten. In liturgische poëzie komen veel psalmcitaten en verwijzingen naar psalmen voor. Gedurende een eeuwenlang proces hebben zich twee liturgische cycli uitgekristalliseerd waarin hele psalmen een belangrijke en zelfs exclusieve plaats innemen: de dagcyclus en de weekcyclus. In de monastieke praktijk worden deze doorgaans volledig gelezen of gezongen; in parochiekerken en persoonlijk gebed wordt een selectie gebruikt. In het laatste geval is er een grote mate van vrijheid.
+            </p>
+            <div className="border-l border-[#b29269] pl-4 sm:pl-6">
+              <h3 className="font-display text-2xl font-medium text-[#35251b]">Dagcyclus (het getijdengebed)</h3>
+              <p className="mt-2">
+                Deze cyclus heeft overeenkomsten met het Rooms-Katholieke getijdengebed en de dagcyclus in de Oriëntaals-Orthodoxe tradities, wegens de gemeenschappelijke wortels. De betreffende psalmen staan in het liturgische boek dat het Horologion wordt genoemd.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <div className="grid gap-6 md:grid-cols-[320px_minmax(0,1fr)] md:items-start">
         <div className="paper card-shadow rounded-[28px] border border-parchment-3 p-3">
           <div className="relative mx-auto aspect-square w-full max-w-[270px] overflow-hidden rounded-full bg-[#0e0705]">
             <svg viewBox="0 0 320 320" className="absolute inset-0 z-20 h-full w-full">
@@ -242,9 +286,9 @@ export default function UrenCyclus() {
                 const labelPos = polar(160, 160, 148, angle);
                 const hourValue = Number.parseInt(label.slice(0, 2), 10);
                 const isActive = activeHour === hourValue;
-                const matching = uren.find((uur) => uur.ring === hourValue) ?? uren[0];
+                const matching = serviceConfig.find((service) => service.ring === hourValue) ?? serviceConfig[0];
                 const dotRadius = isActive ? 11.6 : 7.6;
-                const dotIndex = uren.findIndex((uur) => uur.ring === hourValue || (hourValue === 0 && uur.ring === 0));
+                const dotIndex = serviceConfig.findIndex((service) => service.ring === hourValue || (hourValue === 0 && service.ring === 0));
                 return (
                   <g key={`${label}-${index}`}>
                     <line x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y} stroke="#d4aa3d" strokeWidth={isActive ? 2.2 : 1.2} opacity={isActive ? 1 : 0.8} />
@@ -257,7 +301,7 @@ export default function UrenCyclus() {
                       strokeWidth="1"
                       onMouseEnter={() => setHovered(dotIndex >= 0 ? dotIndex : 0)}
                       onMouseLeave={() => setHovered(null)}
-                      onClick={() => setOpen(dotIndex >= 0 ? dotIndex : 0)}
+                      onClick={() => openService(dotIndex >= 0 ? dotIndex : 0)}
                       className="cursor-pointer transition-all"
                     />
                     <text
@@ -279,8 +323,9 @@ export default function UrenCyclus() {
             <div className="pointer-events-none absolute inset-[30px] z-10 rounded-full border border-[#c4a26f]/80 bg-[#140c09] shadow-[inset_0_0_0_1px_rgba(212,170,61,0.2)]" />
             <div className="absolute inset-[45px] z-40 flex items-center justify-center rounded-full bg-[#1c100b] px-3 text-center">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.26em] text-[#d8c39a]">{uren[activeIndex].tijd}</div>
-                <div className="font-display mt-2 text-2xl leading-none font-semibold text-[#f3e7c8]">{uren[activeIndex].naam}</div>
+                <div className="text-[10px] uppercase tracking-[0.26em] text-[#d8c39a]">{serviceConfig[activeIndex].time}</div>
+            </div>
+                <div className="font-display mt-2 text-2xl leading-none font-semibold text-[#f3e7c8]">{serviceConfig[activeIndex].title}</div>
               </div>
             </div>
           </div>
@@ -291,36 +336,33 @@ export default function UrenCyclus() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 md:pt-2">
-          {uren.map((uur, index) => {
+          {serviceConfig.map((service, index) => {
             const isActive = activeIndex === index;
-            const detail = details[index];
             return (
               <div
-                key={`${uur.naam}-${index}`}
+                key={`${service.title}-${index}`}
                 className={`overflow-hidden rounded-2xl border transition-all ${isActive ? 'border-gold/70 bg-gold-pale shadow-[0_0_0_1px_rgba(201,162,39,0.2)]' : 'border-parchment-3 bg-paper hover:border-gold'}`}
                 onMouseEnter={() => setHovered(index)}
                 onMouseLeave={() => setHovered(null)}
               >
                 <button
                   type="button"
-                  onClick={() => setOpen(index)}
+                  onClick={() => openService(index)}
                   onFocus={() => setHovered(index)}
                   onBlur={() => setHovered(null)}
                   className="flex w-full items-center gap-3 px-4 py-4 text-left"
                 >
-                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#d4aa3d]/70 text-sm font-bold text-[#1a100c] transition-all ${isActive ? 'scale-110' : ''}`} style={{ background: uur.dot }}>
-                    {uur.nr}
+                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#d4aa3d]/70 text-sm font-bold text-[#1a100c] transition-all ${isActive ? 'scale-110' : ''}`} style={{ background: service.dot }}>
+                    {index + 1}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
-                      <span className="font-display text-2xl font-semibold text-ink">{uur.naam}</span>
+                      <span className="font-display text-2xl font-semibold text-ink">{service.title}</span>
                     </span>
                     <span className="mt-1 flex items-center gap-2 text-xs text-ink-soft">
                       <Clock3 className="h-3.5 w-3.5" />
-                      {uur.tijd}
+                      {service.time}
                     </span>
-                    <span className="mt-1 block text-xs font-semibold text-gold-deep">Kernvers: {detail?.kernvers ?? uur.kernvers}</span>
-                    <span className="mt-0.5 block whitespace-pre-line text-xs leading-snug text-ink-soft">{detail?.kernversTekst}</span>
                   </span>
                   <ChevronDown className="h-5 w-5 shrink-0 text-[#d4aa3d]" />
                 </button>
@@ -329,39 +371,142 @@ export default function UrenCyclus() {
           })}
         </div>
 
-        {open !== null && (
-          <div className="fixed inset-0 z-[85] flex items-end justify-center bg-bark/75 p-0 backdrop-blur-sm sm:items-center sm:p-6" onClick={() => setOpen(null)}>
-            <div role="dialog" aria-modal="true" aria-label={uren[open].naam} className="paper card-shadow max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl text-ink sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
-              <div className="flex items-start justify-between gap-4 rounded-t-2xl bg-bark px-6 py-5 text-cream">
-                <div>
-                  <p className="text-[11px] font-bold tracking-[0.28em] text-[#f0cf7b] uppercase">{uren[open].tijd}</p>
-                  <h2 className="font-display mt-1 text-3xl font-semibold text-[#f5ebd7]">{uren[open].naam}</h2>
-                  <p className="mt-1 text-xs text-[#d2ba8d]">Kernvers: {details[open]?.kernvers ?? uren[open].kernvers}</p>
-                  <p className="mt-0.5 whitespace-pre-line text-xs leading-snug text-[#d2ba8d]">{details[open]?.kernversTekst}</p>
+        {open !== null && modalState && (
+          <div className="fixed inset-0 z-[85] flex items-end justify-center bg-bark/75 p-0 backdrop-blur-sm sm:items-center sm:p-6" onClick={closeModal}>
+            <div role="dialog" aria-modal="true" aria-label={currentService.title} className="paper card-shadow max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-t-2xl text-ink sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
+              <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-[#d4aa3d]/30 bg-[#20150f] px-4 py-3 text-[#f5ebd7]">
+                <button type="button" onClick={previousService} className="rounded-full border border-[#d4aa3d]/50 px-3 py-1.5 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/5">← Vorige</button>
+                <div className="truncate text-center text-sm font-semibold tracking-[0.2em] uppercase text-[#f0cf7b]">{modalState.selectedPsalm ? currentService.title : currentService.title}</div>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={nextService} className="rounded-full border border-[#d4aa3d]/50 px-3 py-1.5 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/5">Volgende →</button>
+                  <button type="button" onClick={closeModal} className="rounded-full p-2 hover:bg-white/10" aria-label="Sluiten"><X className="h-4 w-4" /></button>
                 </div>
-                <button type="button" onClick={() => setOpen(null)} className="rounded-full p-2 text-[#f4ecda] hover:bg-white/10" aria-label="Sluiten"><X className="h-5 w-5" /></button>
               </div>
-              <div className="px-6 py-6 text-base leading-relaxed text-ink-soft">
-                <p className="whitespace-pre-line">{details[open]?.tekst ?? uren[open].inhoud}</p>
-                <button type="button" onClick={async () => {
-                  const response = await fetch(`/data/uren/${encodeURIComponent(uren[open].psalmBestand)}`);
-                  setPsalmOpen({ titel: uren[open].psalmBestand.replace(' psalm.txt', ''), tekst: await response.text() });
-                }} className="mt-5 rounded-full border border-gold/50 bg-gold-pale px-4 py-2 text-sm font-bold text-gold-deep hover:bg-gold-light">
-                  Lees de Psalm
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {psalmOpen && (
-          <div className="fixed inset-0 z-[95] flex items-end justify-center bg-bark/80 p-0 backdrop-blur-sm sm:items-center sm:p-6" onClick={() => setPsalmOpen(null)}>
-            <div role="dialog" aria-modal="true" className="paper card-shadow max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
-              <div className="flex items-center justify-between rounded-t-2xl bg-bark px-6 py-5 text-cream">
-                <h2 className="font-display text-3xl font-semibold">{psalmOpen.titel}</h2>
-                <button type="button" onClick={() => setPsalmOpen(null)} className="rounded-full p-2 hover:bg-white/10" aria-label="Sluiten"><X className="h-5 w-5" /></button>
+              <div className="border-b border-[#d4aa3d]/30 bg-[#f4ebdc] px-4 py-3">
+                {modalState.selectedPsalm ? (
+                  <button type="button" onClick={() => setModalState({ serviceIndex: modalState.serviceIndex })} className="rounded-full border border-[#8a5a2b] bg-[#f0dca6] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#2a1b11] hover:bg-[#f6e6b8]">
+                    ← Terug naar dienst
+                  </button>
+                ) : currentService.psalms.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {currentService.psalms.map((psalm) => (
+                      <button
+                        key={psalm.title}
+                        type="button"
+                        onClick={() => openPsalm(modalState.serviceIndex, psalm)}
+                        className="rounded-full border border-[#8a5a2b] bg-[#f0dca6] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#2a1b11] hover:bg-[#f6e6b8]"
+                      >
+                        {psalm.title}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-              <p className="whitespace-pre-line px-6 py-6 text-base leading-relaxed text-ink-soft">{psalmOpen.tekst}</p>
+
+              <div className="max-h-[70vh] overflow-y-auto bg-[#f2e8d8] p-3 sm:p-5">
+                {pdfStatus === 'loading' && (
+                  <div className="flex min-h-[30vh] items-center justify-center text-sm font-medium uppercase tracking-[0.18em] text-[#4a2b1c]">
+                    Tekst wordt geladen…
+                  </div>
+                )}
+
+                {pdfStatus === 'error' && (
+                  <div className="flex min-h-[30vh] items-center justify-center text-center text-base font-medium text-[#4a2b1c]">
+                    De tekst van {currentTitle} kon niet worden geladen.
+                  </div>
+                )}
+
+                {pdfStatus === 'done' && pdfPages.length > 0 && (
+                  <div className="mx-auto max-w-4xl space-y-5">
+                    {pdfPages.map((page, pageIndex) => (
+                      <article
+                        key={`${currentTitle}-page-${pageIndex + 1}`}
+                        className="border border-[#8b6a4b] bg-[#f8f0e6] p-5 shadow-[0_14px_28px_rgba(25,15,10,0.12)] sm:p-8"
+                        style={{
+                          backgroundImage: 'linear-gradient(to bottom, rgba(90,53,31,0.03), rgba(90,53,31,0.01))',
+                          fontFamily: 'Georgia, "Times New Roman", serif',
+                          boxShadow: 'inset 0 0 0 1px rgba(94,67,46,0.12)',
+                        }}
+                      >
+                        <div className="mb-5 border-b border-[#b29269] pb-2 text-[10px] font-bold uppercase tracking-[0.26em] text-[#5c3d2d]">
+                          Pagina {pageIndex + 1}
+                        </div>
+                        <div className="space-y-1 text-[15px] leading-[2.05] tracking-[0.01em] text-[#1f120c] sm:text-[16px]">
+                          {(() => {
+                            const rendered: Array<React.ReactNode> = [];
+                            for (let lineIndex = 0; lineIndex < page.length; lineIndex += 1) {
+                              const line = page[lineIndex];
+                              const isKernvers = !modalState.selectedPsalm && /kernvers/i.test(line.text);
+
+                              if (isKernvers) {
+                                const verses = currentService.kernvers.verses;
+                                let skippedLines = 0;
+                                for (let offset = 1; offset <= 4 && lineIndex + offset < page.length; offset += 1) {
+                                  const nextLine = page[lineIndex + offset].text.trim();
+                                  if (!nextLine) continue;
+                                  if (/^psalm\s+.*$/i.test(nextLine)) break;
+                                  if (/^(pagina|page)/i.test(nextLine)) break;
+                                  if (nextLine.length > 80) break;
+                                  skippedLines += 1;
+                                }
+
+                                rendered.push(
+                                  <div
+                                    key={`${currentTitle}-kernvers-${pageIndex + 1}-${lineIndex}`}
+                                    className="my-4 rounded-md border border-[#a48764] bg-[#f1e5d3] px-4 py-3"
+                                    style={{
+                                      marginLeft: `${Math.max(line.x * 0.04, 0)}px`,
+                                      boxShadow: 'inset 0 0 0 1px rgba(94,67,46,0.06)',
+                                    }}
+                                  >
+                                    <div className="mb-2 text-[10px] font-medium uppercase tracking-[0.24em] text-[#765b42]">
+                                      Psalm Kernvers
+                                    </div>
+                                    <div className="text-[1.02em] italic tracking-[0.01em] text-[#35251b]">
+                                      {currentService.kernvers.reference}
+                                    </div>
+                                    <div className="mt-2 space-y-1 text-[#35251b]">
+                                      {verses.map((verse, verseIndex) => (
+                                          <div key={`${currentTitle}-verse-${pageIndex + 1}-${lineIndex}-${verseIndex}`}>
+                                            {verse}
+                                          </div>
+                                      ))}
+                                    </div>
+                                  </div>,
+                                );
+                                lineIndex += skippedLines;
+                                continue;
+                              }
+
+                              rendered.push(
+                                <div
+                                  key={`${currentTitle}-line-${pageIndex + 1}-${lineIndex}`}
+                                  className="whitespace-pre-wrap"
+                                  style={{
+                                    marginLeft: `${Math.max(line.x * 0.04, 0)}px`,
+                                    textIndent: lineIndex === 0 ? '0' : '0.5rem',
+                                  }}
+                                >
+                                  {line.text}
+                                </div>,
+                              );
+                            }
+
+                            return rendered;
+                          })()}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+                {pdfStatus === 'done' && pdfPages.length === 0 && (
+                  <div className="flex min-h-[30vh] items-center justify-center text-center text-base font-medium text-[#4a2b1c]">
+                    Er is geen tekst gevonden in {currentTitle}.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
