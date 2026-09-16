@@ -3,8 +3,9 @@ import { Search } from 'lucide-react';
 import { useApp } from '../lib/context';
 import { ALLE_HEILIGEN } from '../lib/heiligen';
 import { rangLabel, vertaalLeven } from '../lib/htc';
-import { MAANDEN, MAANDEN_KORT, civilVanKerkdatum, formatMd, hoofdletter, ymd } from '../lib/kalender';
+import { MAANDEN, MAANDEN_KORT, formatMd, hoofdletter } from '../lib/kalender';
 import { SectionTitle } from './ui';
+import Modal from './Modal';
 
 interface Resultaat {
   md: string;
@@ -27,16 +28,24 @@ function sorteerMd(a: string, b: string) {
 }
 
 export default function Heiligen() {
-  const { mode, vandaag, htc, openDag } = useApp();
+  const { mode, htc } = useApp();
   const [zoek, setZoek] = useState('');
   const [maand, setMaand] = useState<number | null>(null);
+  const [dag, setDag] = useState<number | null>(null);
   const [alleenNl, setAlleenNl] = useState(false);
+  const [geselecteerde, setGeselecteerde] = useState<Resultaat | null>(null);
 
   const resultaten = useMemo<Resultaat[]>(() => {
     const q = normaliseer(zoek.trim());
-    const inMaand = (md: string) => maand === null || Number(md.split('-')[0]) === maand;
+    if (maand === null && q.length === 0 && !alleenNl) return [];
+    const zoekDoorHeelJaar = q.length > 0 || alleenNl;
+    const inSelectie = (md: string) => {
+      const [maandWaarde, dagWaarde] = md.split('-').map(Number);
+      if (zoekDoorHeelJaar) return true;
+      return (maand === null || maandWaarde === maand) && (dag === null || dagWaarde === dag);
+    };
 
-    const nl: Resultaat[] = ALLE_HEILIGEN.filter((h) => inMaand(h.md) && (!alleenNl || h.nl) && (!q || normaliseer(`${h.naam} ${h.titel} ${h.kort}`).includes(q))).map((h) => ({
+    const nl: Resultaat[] = ALLE_HEILIGEN.filter((h) => inSelectie(h.md) && (!alleenNl || h.nl) && (!q || normaliseer(`${h.naam} ${h.titel} ${h.kort}`).includes(q))).map((h) => ({
       md: h.md,
       naam: h.naam,
       titel: h.titel,
@@ -49,7 +58,7 @@ export default function Heiligen() {
     if (htc && !alleenNl && (q.length >= 3 || maand !== null)) {
       const gezien = new Set(nl.map((r) => `${r.md}|${normaliseer(r.naam).split(' ')[0]}`));
       for (const [md, dag] of Object.entries(htc)) {
-        if (!inMaand(md)) continue;
+        if (!inSelectie(md)) continue;
         for (const [icon, tekst] of dag.l) {
           const vertaald = vertaalLeven(tekst);
           if (q && !normaliseer(`${tekst} ${vertaald}`).includes(q)) continue;
@@ -60,10 +69,10 @@ export default function Heiligen() {
         }
       }
     }
-    return out.sort((a, b) => sorteerMd(a.md, b.md) || (a.bron === 'nl' ? -1 : 1)).slice(0, 120);
-  }, [zoek, maand, alleenNl, htc]);
+    return out.sort((a, b) => sorteerMd(a.md, b.md) || (a.bron === 'nl' ? -1 : 1));
+  }, [zoek, maand, dag, alleenNl, htc]);
 
-  const jaar = vandaag.getUTCFullYear();
+  const dagenInMaand = maand === null ? 0 : new Date(Date.UTC(2026, maand, 0)).getUTCDate();
 
   return (
     <section id="heiligen" className="parchment-pattern bg-parchment py-16 sm:py-20">
@@ -86,39 +95,53 @@ export default function Heiligen() {
                 className="w-full rounded-full border border-parchment-4 bg-white py-2.5 pr-4 pl-9 text-sm text-ink placeholder:text-ink-mute focus:border-gold focus:outline-none"
               />
             </label>
-            <label className="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft">
-              <input type="checkbox" checked={alleenNl} onChange={(e) => setAlleenNl(e.target.checked)} className="h-4 w-4 accent-[#5a2424]" />
+            <button
+              type="button"
+              aria-pressed={alleenNl}
+              onClick={() => setAlleenNl((waarde) => !waarde)}
+              className={`shrink-0 rounded-full border px-3 py-2 text-sm font-semibold transition ${alleenNl ? 'border-wine bg-wine text-gold-light' : 'border-parchment-4 bg-parchment-2 text-ink-soft hover:border-gold'}`}
+            >
               Alleen heiligen van de Lage Landen
-            </label>
+            </button>
           </div>
           <div className="no-scrollbar mt-3 flex gap-1.5 overflow-x-auto pb-1">
-            <button type="button" onClick={() => setMaand(null)} className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${maand === null ? 'bg-wine text-gold-light' : 'bg-parchment-2 text-ink-soft hover:bg-parchment-3'}`}>
-              Hele jaar
-            </button>
             {MAANDEN_KORT.map((m, i) => (
-              <button key={m} type="button" onClick={() => setMaand(i + 1)} className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${maand === i + 1 ? 'bg-wine text-gold-light' : 'bg-parchment-2 text-ink-soft hover:bg-parchment-3'}`}>
+              <button key={m} type="button" onClick={() => { setMaand(i + 1); setDag(null); }} className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${maand === i + 1 ? 'bg-wine text-gold-light' : 'bg-parchment-2 text-ink-soft hover:bg-parchment-3'}`}>
                 {hoofdletter(m)}
               </button>
             ))}
           </div>
 
+          {maand !== null && (
+            <div className="no-scrollbar mt-3 flex gap-1.5 overflow-x-auto border-t border-parchment-3 pt-3">
+              {Array.from({ length: dagenInMaand }, (_, index) => {
+                const dagNummer = index + 1;
+                return (
+                  <button key={dagNummer} type="button" onClick={() => setDag(dagNummer)} className={`min-w-8 shrink-0 rounded-full px-2 py-1 text-xs font-bold ${dag === dagNummer ? 'bg-wine text-gold-light' : 'bg-parchment-2 text-ink-soft hover:bg-parchment-3'}`}>
+                    {dagNummer}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           <div className="mt-4 flex items-center justify-between text-xs text-ink-mute">
             <span>
               {resultaten.length} {resultaten.length === 1 ? 'gedachtenis' : 'gedachtenissen'}
-              {maand !== null && ` in ${MAANDEN[maand - 1]} (kerkelijke datum)`}
-              {zoek.trim().length > 0 && zoek.trim().length < 3 && !maand && ' · typ minstens 3 letters om ook het volledige menologion te doorzoeken'}
+              {zoek.trim().length > 0 ? ' · zoekopdracht door het hele kerkelijke jaar' : alleenNl ? ' · alle Lage-Landen-heiligen' : maand !== null && ` in ${MAANDEN[maand - 1]} (kerkelijke datum)`}
+              {zoek.trim().length === 0 && !alleenNl && dag !== null && ` · dag ${dag}`}
+              {zoek.trim().length > 0 && zoek.trim().length < 3 && ' · typ minstens 3 letters om ook het volledige menologion te doorzoeken'}
             </span>
             <span>{mode === 'oud' ? 'burgerlijke datum = kerkelijke + 13' : 'nieuwe kalender'}</span>
           </div>
 
           <ul className="mt-3 grid gap-2 md:grid-cols-2">
             {resultaten.map((r, i) => {
-              const civil = civilVanKerkdatum(r.md, jaar, mode);
               return (
                 <li key={`${r.md}-${r.naam}-${i}`}>
                   <button
                     type="button"
-                    onClick={() => openDag(ymd(civil))}
+                    onClick={() => setGeselecteerde(r)}
                     className={`flex w-full items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition hover:border-gold ${r.bron === 'nl' ? 'border-parchment-3 bg-white/70' : 'border-transparent bg-parchment-2/70'}`}
                   >
                     <div className="font-display w-12 shrink-0 text-center leading-none">
@@ -132,19 +155,28 @@ export default function Heiligen() {
                         {r.rang && r.rang >= 4 && <span className="rounded-sm bg-gold-pale px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-gold-deep uppercase">{rangLabel(String(r.rang))?.label}</span>}
                       </div>
                       {r.titel && <div className="text-xs font-semibold text-gold-deep">{r.titel}</div>}
-                      {r.kort && <p className="mt-0.5 text-sm leading-snug text-ink-soft">{r.kort}</p>}
-                      <div className="mt-1 text-[11px] text-ink-mute">
-                        {mode === 'oud' ? `kerkelijk ${formatMd(r.md)} · burgerlijk ${civil.getUTCDate()} ${MAANDEN[civil.getUTCMonth()]}` : formatMd(r.md)}
-                      </div>
                     </div>
                   </button>
                 </li>
               );
             })}
           </ul>
-          {resultaten.length === 0 && <p className="mt-6 text-center text-sm text-ink-mute">Geen heiligen gevonden. Probeer een andere spelling (bijv. „Johannes” in plaats van „Jan”).</p>}
+          {resultaten.length === 0 && maand === null && zoek.trim().length === 0 && !alleenNl ? (
+            <p className="mt-6 text-center text-sm text-ink-mute">Kies eerst een maand om de heiligen te bekijken.</p>
+          ) : resultaten.length === 0 ? (
+            <p className="mt-6 text-center text-sm text-ink-mute">Geen heiligen gevonden. Probeer een andere spelling (bijv. „Johannes” in plaats van „Jan”).</p>
+          ) : null}
         </div>
       </div>
+
+      {geselecteerde && (
+        <Modal open={Boolean(geselecteerde)} onClose={() => setGeselecteerde(null)} eyebrow={formatMd(geselecteerde.md)} title={geselecteerde.naam} maxWidth="max-w-lg">
+            <div className="space-y-3">
+              {geselecteerde.titel && <p className="font-semibold text-gold-deep">{geselecteerde.titel}</p>}
+              {geselecteerde.kort && <p className="leading-relaxed text-ink-soft">{geselecteerde.kort}</p>}
+            </div>
+        </Modal>
+      )}
     </section>
   );
 }

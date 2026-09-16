@@ -34,7 +34,7 @@ export default function Kalender() {
         />
 
         {/* Uitleg oude/nieuwe kalender */}
-        <div className="mb-8 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+        <div className="mb-8 grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
           <button
             type="button"
             onClick={() => setMode('oud')}
@@ -61,7 +61,7 @@ export default function Kalender() {
               De vaste feesten vallen op de burgerlijke datum: Kerstmis op 25 december. Gevolgd door de Griekse, Roemeense, Bulgaarse en Antiocheense parochies. Pascha wordt in beide gevallen volgens de Juliaanse paasregel berekend.
             </p>
           </button>
-          <div className="flex items-center justify-center rounded-xl bg-bark p-4 text-center text-cream md:w-44">
+          <div className="flex items-center justify-center rounded-xl bg-bark p-4 text-center text-cream lg:w-44">
             <div>
               <Repeat className="mx-auto h-5 w-5 text-gold" />
               <p className="mt-2 text-xs leading-snug text-[#d9cbb0]">Wissel bovenaan of hier tussen de twee kalenders. Pascha blijft gelijk.</p>

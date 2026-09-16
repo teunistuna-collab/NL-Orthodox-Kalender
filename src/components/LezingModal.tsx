@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpenText, ChevronDown, ExternalLink, X } from 'lucide-react';
+import { BookOpenText, ChevronDown, ExternalLink } from 'lucide-react';
 import type { LezingKeuze } from '../lib/context';
 import { laadLezingen, lezingSoort, nbv21Url, vertaalRef, vertaalTag, type HtcLezing } from '../lib/htc';
 import { formatLang } from '../lib/kalender';
+import Modal from './Modal';
 
 interface Props {
   keuze: LezingKeuze | null;
@@ -44,40 +44,8 @@ export default function LezingModal({ keuze, onClose }: Props) {
   const nbv = keuze ? nbv21Url(keuze.ref) : null;
 
   return (
-    <AnimatePresence>
-      {keuze && (
-        <motion.div
-          className="fixed inset-0 z-[90] flex items-end justify-center bg-bark/75 backdrop-blur-sm sm:items-center sm:p-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            className="paper card-shadow thin-scroll max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl sm:rounded-2xl"
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 30, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={`relative rounded-t-2xl px-6 pt-6 pb-5 ${soort === 'evangelie' ? 'bg-wine text-cream' : 'bg-bark text-cream'}`}>
-              <div className="orthodox-pattern absolute inset-0 opacity-60" />
-              <div className="relative flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] font-bold tracking-[0.28em] text-gold-light uppercase">
-                    {vertaalTag(keuze.tag, refNl)} · {formatLang(keuze.civil)}
-                  </p>
-                  <h2 className="font-display mt-2 text-3xl font-semibold text-[#fbf3df]">{refNl}</h2>
-                </div>
-                <button type="button" onClick={onClose} className="rounded-full p-2 text-cream hover:bg-white/10" aria-label="Sluiten">
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            <div className="px-6 py-6">
+    <Modal open={Boolean(keuze)} onClose={onClose} eyebrow={`${keuze ? vertaalTag(keuze.tag, refNl) : ''} · ${keuze ? formatLang(keuze.civil) : ''}`} title={refNl} maxWidth="max-w-2xl">
+            <div>
               {/* NBV21 */}
               <div className="rounded-xl border border-gold/40 bg-gold-pale/60 p-5">
                 <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.25em] text-gold-deep uppercase">
@@ -134,9 +102,6 @@ export default function LezingModal({ keuze, onClose }: Props) {
                 </div>
               )}
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </Modal>
   );
 }

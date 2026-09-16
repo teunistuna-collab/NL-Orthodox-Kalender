@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useApp } from '../lib/context';
 import { DERTIEN, OVERIGE_VASTE } from '../lib/feesten';
+import Modal from './Modal';
 import { MAANDEN_KORT, daysBetween, formatDag, formatLang, formatMd, kerkDatum, ymd } from '../lib/kalender';
 import { volgendeFeestDatum } from '../lib/overzicht';
 import { FeestTag, SectionTitle } from './ui';
@@ -42,7 +43,7 @@ export default function Feesten() {
           intro="Pascha staat boven alles — het Feest der feesten. Daaronder kent de Kerk twaalf grote feesten van de Heer en van de Moeder Gods: acht vóór Pascha en vier erna, samen het hele leven van Christus en Zijn Moeder. Tik een feest open voor uitleg, gebruiken en troparion."
         />
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {lijst.map(({ f, i, datum, dagen }) => {
             const pascha = f.soort === 'pascha';
             return (
@@ -80,25 +81,16 @@ export default function Feesten() {
           {open && (() => {
             const gekozen = lijst.find(({ f }) => f.id === open);
             if (!gekozen) return null;
-            const { f, datum, pascha } = { ...gekozen, pascha: gekozen.f.soort === 'pascha' };
+            const { f, datum } = gekozen;
             return (
-              <motion.div className="fixed inset-0 z-[85] flex items-end justify-center bg-bark/75 p-0 backdrop-blur-sm sm:items-center sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpen(null)}>
-                <motion.div role="dialog" aria-modal="true" aria-label={f.naam} className="paper card-shadow max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl sm:rounded-2xl" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} onClick={(e) => e.stopPropagation()}>
-                  <div className={`flex items-start justify-between gap-4 px-6 py-5 ${pascha ? 'bg-wine text-cream' : 'bg-bark text-cream'}`}>
-                    <div>
-                      <p className="text-[11px] font-bold tracking-[0.28em] text-gold-light uppercase">{formatLang(datum)}</p>
-                      <h2 className="font-display mt-1 text-3xl font-semibold">{f.naam}</h2>
-                    </div>
-                    <button type="button" onClick={() => setOpen(null)} className="rounded-full p-2 hover:bg-white/10" aria-label="Sluiten"><X className="h-5 w-5" /></button>
-                  </div>
-                  <div className="space-y-4 px-6 py-6 text-base leading-relaxed text-ink-soft">
+              <Modal open={Boolean(open)} onClose={() => setOpen(null)} eyebrow={formatLang(datum)} title={f.naam} maxWidth="max-w-2xl">
+                  <div className="space-y-4 text-base leading-relaxed text-ink-soft">
                     <p>{f.toelichting}</p>
                     {f.traditie && <p><strong className="text-gold-deep">Gebruiken: </strong>{f.traditie}</p>}
                     {f.troparion && <blockquote className="font-display border-l-2 border-gold pl-3 text-xl italic text-ink">{f.troparion}<span className="mt-1 block text-xs font-bold tracking-wider text-gold-deep uppercase not-italic">Troparion</span></blockquote>}
                     <button type="button" onClick={() => openDag(ymd(datum))} className="text-sm font-bold text-gold-deep underline-offset-2 hover:underline">Open de dag in de kalender →</button>
                   </div>
-                </motion.div>
-              </motion.div>
+              </Modal>
             );
           })()}
         </AnimatePresence>
@@ -111,7 +103,7 @@ export default function Feesten() {
               <h3 className="font-display mt-1 text-2xl font-semibold">Overige feesten van heiligen en van de Moeder Gods</h3>
             </div>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
             {overige.slice(0, 18).map(({ f, datum, dagen }) => (
               <button
                 key={f.id}

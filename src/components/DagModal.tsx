@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpenText, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { BookOpenText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../lib/context';
 import { addDays, dagInfo, formatDag, formatLang, parseYmd, ymd } from '../lib/kalender';
 import { HEILIGEN } from '../lib/heiligen';
 import { LEZINGEN_JAAR, lezingSoort, rangLabel, vertaalLeven, vertaalRef, vertaalTag } from '../lib/htc';
 import { NIVEAUS } from '../lib/vasten';
 import { FeestTag, VastenBadge } from './ui';
+import Modal from './Modal';
 
 interface Props {
   ymd: string | null;
@@ -40,61 +40,23 @@ export default function DagModal({ ymd: geselecteerd, onClose, onNavigate }: Pro
   const lezingen = dag && dag.jaar === LEZINGEN_JAAR ? htc?.[dag.julianKey]?.r ?? [] : [];
   const niveau = dag ? NIVEAUS[dag.vasten.niveau] : null;
 
-  return (
-    <AnimatePresence>
-      {dag && niveau && (
-        <motion.div
-          className="fixed inset-0 z-[80] flex items-end justify-center bg-bark/70 p-0 backdrop-blur-sm sm:items-center sm:p-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-label={`Dagdetail ${formatLang(dag.civil)}`}
-            className="paper card-shadow thin-scroll max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-2xl sm:rounded-2xl"
-            initial={{ y: 40, opacity: 0, scale: 0.98 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 30, opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: [0.2, 0.7, 0.2, 1] }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Kop */}
-            <div className="relative overflow-hidden rounded-t-2xl bg-bark px-6 pt-6 pb-5 text-cream">
-              <div className="orthodox-pattern absolute inset-0 opacity-70" />
-              <div className="absolute inset-x-0 bottom-0 h-1" style={{ background: niveau.kleur }} />
-              <div className="relative flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] font-bold tracking-[0.28em] text-gold-light uppercase">
-                    {formatLang(dag.civil)}
-                    {mode === 'oud' && <span className="text-[#bfa982]"> · kerkelijk {formatDag(dag.kerk)}</span>}
-                  </p>
-                  <h2 className="font-display mt-2 text-2xl leading-tight font-semibold text-[#fbf3df] sm:text-3xl">
-                    {dag.feesten[0]?.naam ?? (curated[0] ? `H. ${curated[0].naam}` : htcDag?.l[0] ? vertaalLeven(htcDag.l[0][1]).replace(/\.$/, '') : 'Dag door het jaar')}
-                  </h2>
-                  <p className="mt-2 text-sm text-[#d9cbb0]">
-                    {dag.seizoen}
-                    {dag.toon && <span> · Toon {dag.toon}</span>}
-                    {dag.isVandaag && <span className="ml-2 rounded-sm bg-gold px-1.5 py-0.5 text-[10px] font-bold text-bark uppercase">Vandaag</span>}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <button type="button" onClick={() => onNavigate(ymd(addDays(dag.civil, -1)))} className="rounded-full p-2 text-gold-light hover:bg-white/10" aria-label="Vorige dag">
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button type="button" onClick={() => onNavigate(ymd(addDays(dag.civil, 1)))} className="rounded-full p-2 text-gold-light hover:bg-white/10" aria-label="Volgende dag">
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                  <button type="button" onClick={onClose} className="ml-1 rounded-full p-2 text-cream hover:bg-white/10" aria-label="Sluiten">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
+  if (!dag || !niveau) return null;
 
-            <div className="space-y-7 px-6 py-6">
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      eyebrow={dag ? `${formatLang(dag.civil)}${mode === 'oud' ? ` · kerkelijk ${formatDag(dag.kerk)}` : ''}` : undefined}
+      title={dag ? dag.feesten[0]?.naam ?? (curated[0] ? `H. ${curated[0].naam}` : htcDag?.l[0] ? vertaalLeven(htcDag.l[0][1]).replace(/\.$/, '') : 'Dag door het jaar') : ''}
+      maxWidth="max-w-4xl"
+      actions={dag ? (
+        <>
+          <button type="button" onClick={() => onNavigate(ymd(addDays(dag.civil, -1)))} className="rounded-full p-2 text-[#f0cf7b] hover:bg-white/10" aria-label="Vorige dag"><ChevronLeft className="h-5 w-5" /></button>
+          <button type="button" onClick={() => onNavigate(ymd(addDays(dag.civil, 1)))} className="rounded-full p-2 text-[#f0cf7b] hover:bg-white/10" aria-label="Volgende dag"><ChevronRight className="h-5 w-5" /></button>
+        </>
+      ) : undefined}
+    >
+            <div className="space-y-7">
               {/* Vasten */}
               <div className="rounded-xl p-4" style={{ background: niveau.zacht, border: `1px solid ${niveau.kleur}33` }}>
                 <div className="flex flex-wrap items-center gap-3">
@@ -214,9 +176,6 @@ export default function DagModal({ ymd: geselecteerd, onClose, onNavigate }: Pro
                 )}
               </div>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </Modal>
   );
 }

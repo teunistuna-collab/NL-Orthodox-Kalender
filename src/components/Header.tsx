@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, CalendarDays, Clock3, Flame, HandHeart, Sparkles, Sun, Wheat } from 'lucide-react';
+import { BookOpen, CalendarDays, Clock3, Flame, HandHeart, Menu, Sparkles, Sun, Wheat, X } from 'lucide-react';
 import Cross from './Cross';
 import { useApp } from '../lib/context';
 import { formatDag, kerkDatum, formatLang } from '../lib/kalender';
@@ -18,6 +18,7 @@ export const SECTIES = [
 export default function Header() {
   const { mode, setMode, vandaag } = useApp();
   const [actief, setActief] = useState('vandaag');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const els = SECTIES.map((s) => document.getElementById(s.id)).filter(Boolean) as HTMLElement[];
@@ -73,19 +74,22 @@ export default function Header() {
               </button>
             </div>
           </div>
+            <button type="button" onClick={() => setMenuOpen((open) => !open)} className="rounded-full p-2 text-gold-light hover:bg-white/10 sm:hidden" aria-label={menuOpen ? 'Menu sluiten' : 'Menu openen'} aria-expanded={menuOpen}>
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
         </div>
       </div>
 
-      <nav className="border-t border-gold/20 bg-bark-2 text-cream">
-        <div className="no-scrollbar mx-auto flex max-w-7xl gap-1 overflow-x-auto px-2 sm:px-4">
+      <nav className={`${menuOpen ? 'block' : 'hidden'} border-t border-gold/20 bg-bark-2 text-cream sm:block`}>
+        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-2 py-2 sm:flex-row sm:overflow-x-auto sm:py-0 sm:px-4">
           {SECTIES.map(({ id, label, icon: Icon }) => {
             const on = actief === id;
             return (
               <a
                 key={id}
                 href={`#${id}`}
-                onClick={() => setActief(id)}
-                className={`relative flex shrink-0 items-center gap-1.5 px-3 py-2.5 text-[12px] font-bold tracking-wider uppercase transition sm:px-4 ${
+                onClick={() => { setActief(id); setMenuOpen(false); }}
+                className={`relative flex min-h-11 shrink-0 items-center gap-1.5 px-3 py-2.5 text-[12px] font-bold tracking-wider uppercase transition sm:min-h-0 sm:px-4 ${
                   on ? 'text-gold-light' : 'text-[#bfa982] hover:text-cream'
                 }`}
               >

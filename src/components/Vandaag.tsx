@@ -106,7 +106,7 @@ export default function Vandaag() {
               </a>
             </motion.div>
 
-            <motion.div variants={fade} initial="hidden" animate="show" custom={5} className="mt-10 grid gap-4 sm:grid-cols-3 lg:order-3">
+            <motion.div variants={fade} initial="hidden" animate="show" custom={5} className="mt-10 grid gap-4 md:grid-cols-3 lg:order-3">
               <div className="rounded-xl border border-gold/20 bg-gradient-to-br from-wine/70 to-bark-2/80 p-4">
                 <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.22em] text-gold-light uppercase">
                   <Flame className="h-3.5 w-3.5" /> Aftellen tot Pascha
@@ -192,7 +192,7 @@ export default function Vandaag() {
                 <h3 className="font-display text-lg font-semibold">Lezingen van de dag</h3>
               </div>
               {lezingen.length > 0 ? (
-                <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                <ul className="mt-2 grid gap-1.5 md:grid-cols-2">
                   {lezingen.map((l, i) => {
                     const refNl = vertaalRef(l.ref);
                     const soort = lezingSoort(refNl);

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Check, ChevronLeft, ChevronRight, Copy, Maximize2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Copy, Maximize2 } from 'lucide-react';
 import { GEBEDEN, type Gebed } from '../lib/gebeden';
 import { SectionTitle } from './ui';
+import Modal from './Modal';
 
 const CATS: { id: Gebed['categorie'] | 'alle'; label: string }[] = [
   { id: 'alle', label: 'Alle gebeden' },
@@ -95,46 +95,11 @@ function GebedVenster({ lijst, index, onClose, onIndex }: { lijst: Gebed[]; inde
     };
   }, [index, lijst.length, onClose, onIndex]);
 
-  return (
-    <AnimatePresence>
-      {g && index !== null && (
-        <motion.div
-          className="fixed inset-0 z-[85] flex items-end justify-center bg-bark/75 backdrop-blur-sm sm:items-center sm:p-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-label={g.titel}
-            className="paper card-shadow thin-scroll max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-2xl sm:rounded-2xl"
-            initial={{ y: 40, opacity: 0, scale: 0.98 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 30, opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: [0.2, 0.7, 0.2, 1] }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative overflow-hidden rounded-t-2xl bg-bark px-6 pt-6 pb-5 text-cream">
-              <div className="orthodox-pattern absolute inset-0 opacity-70" />
-              <div className="relative flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold tracking-[0.28em] text-gold-light uppercase">
-                    {CAT_LABEL[g.categorie]} · {g.wanneer}
-                  </p>
-                  <h2 className="font-display mt-2 text-2xl leading-tight font-semibold text-[#fbf3df] sm:text-3xl">{g.titel}</h2>
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <KopieerKnop g={g} donker />
-                  <button type="button" onClick={onClose} className="ml-1 rounded-full p-2 text-cream hover:bg-white/10" aria-label="Sluiten">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
+  if (!g || index === null) return null;
 
-            <div className="px-6 py-7 sm:px-10 sm:py-9">
+  return (
+    <Modal open={Boolean(g && index !== null)} onClose={onClose} eyebrow={g ? `${CAT_LABEL[g.categorie]} · ${g.wanneer}` : undefined} title={g?.titel ?? ''} maxWidth="max-w-3xl" actions={g ? <KopieerKnop g={g} donker /> : undefined}>
+            <div className="px-0 py-1 sm:px-2 sm:py-2">
               {g.rubriek && <p className="mb-5 text-[15px] leading-relaxed text-ink-soft italic">{g.rubriek}</p>}
               <p className="font-display text-[21px] leading-[1.7] whitespace-pre-line text-ink sm:text-[23px]">{g.tekst}</p>
               <div className="gold-rule mt-8" />
@@ -160,10 +125,7 @@ function GebedVenster({ lijst, index, onClose, onIndex }: { lijst: Gebed[]; inde
                 </button>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </Modal>
   );
 }
 
@@ -195,7 +157,7 @@ export default function Gebeden() {
             </button>
           ))}
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {lijst.map((g, i) => (
             <GebedKaart key={g.id} g={g} onOpen={() => setOpen(i)} />
           ))}

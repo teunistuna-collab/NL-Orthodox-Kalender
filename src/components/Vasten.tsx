@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, Info } from 'lucide-react';
+import { Beef, ChevronDown, Droplets, Egg, Fish, Info, Milk, Wine } from 'lucide-react';
 import { useApp } from '../lib/context';
 import { WEEKDAGEN_KORT, addDays, dagInfo, formatDag, formatDatum, formatKort, utc, weekRond, ymd } from '../lib/kalender';
 import { telVastendagen, vastenPeriodes } from '../lib/overzicht';
 import { LADDER, NIVEAUS } from '../lib/vasten';
 import { SectionTitle, VastenBadge } from './ui';
+import Modal from './Modal';
 
 const FAQ = [
   {
@@ -26,9 +27,10 @@ const FAQ = [
 ];
 
 export default function Vasten() {
-  const { mode, vandaag, vandaagYmd, openDag } = useApp();
+  const { mode, vandaag, vandaagYmd } = useApp();
   const [jaar, setJaar] = useState(vandaag.getUTCFullYear());
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [geselecteerdeDag, setGeselecteerdeDag] = useState<string | null>(null);
 
   const periodes = useMemo(() => vastenPeriodes(jaar, mode), [jaar, mode]);
   const week = useMemo(() => weekRond(vandaag, mode, vandaagYmd), [vandaag, mode, vandaagYmd]);
@@ -46,6 +48,15 @@ export default function Vasten() {
   const vastenP = periodes.filter((p) => p.soort === 'vasten');
   const vrijP = periodes.filter((p) => p.soort === 'vrij');
   const dagP = periodes.filter((p) => p.soort === 'dag');
+  const geselecteerdeDagInfo = geselecteerdeDag ? dagInfo(new Date(`${geselecteerdeDag}T00:00:00Z`), mode) : null;
+  const onthoudingen = geselecteerdeDagInfo ? [
+    { label: 'Vlees', toegestaan: ['vrij', 'geen'].includes(geselecteerdeDagInfo.vasten.niveau), Icon: Beef },
+    { label: 'Zuivel', toegestaan: ['vrij', 'geen', 'zuivel'].includes(geselecteerdeDagInfo.vasten.niveau), Icon: Milk },
+    { label: 'Eieren', toegestaan: ['vrij', 'geen', 'zuivel'].includes(geselecteerdeDagInfo.vasten.niveau), Icon: Egg },
+    { label: 'Vis', toegestaan: ['vrij', 'geen', 'zuivel', 'vis'].includes(geselecteerdeDagInfo.vasten.niveau), Icon: Fish },
+    { label: 'Olie', toegestaan: ['vrij', 'geen', 'zuivel', 'vis', 'wijn-olie', 'vastendag'].includes(geselecteerdeDagInfo.vasten.niveau), Icon: Droplets },
+    { label: 'Wijn', toegestaan: ['vrij', 'geen', 'zuivel', 'vis', 'wijn-olie', 'vastendag'].includes(geselecteerdeDagInfo.vasten.niveau), Icon: Wine },
+  ] : [];
 
   return (
     <section id="vasten" className="parchment-pattern bg-parchment py-16 text-ink sm:py-20">
@@ -74,7 +85,7 @@ export default function Vasten() {
                 <button
                   key={d.ymd}
                   type="button"
-                  onClick={() => openDag(d.ymd)}
+                  onClick={() => setGeselecteerdeDag(d.ymd)}
                   className={`rounded-xl border p-2 text-center transition hover:brightness-95 sm:p-3 ${d.isVandaag ? 'ring-2 ring-gold' : ''}`}
                   style={{ background: n.zacht, color: n.tekst, borderColor: `${n.kleur}55` }}
                 >
@@ -122,7 +133,7 @@ export default function Vasten() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           {vastenP.map((p) => (
             <article key={p.id} className="paper card-shadow relative overflow-hidden rounded-2xl p-5 text-ink">
               <div className="absolute inset-y-0 left-0 w-1.5" style={{ background: p.kleur }} />
@@ -133,7 +144,7 @@ export default function Vasten() {
                     {formatDag(p.start)} – {formatDatum(p.eind)} · {p.dagen} dagen
                   </p>
                 </div>
-                <button type="button" onClick={() => openDag(ymd(p.start))} className="rounded-full bg-parchment-3 px-3 py-1 text-[11px] font-bold text-gold-deep hover:bg-gold-pale">
+                <button type="button" onClick={() => setGeselecteerdeDag(ymd(p.start))} className="rounded-full bg-parchment-3 px-3 py-1 text-[11px] font-bold text-gold-deep hover:bg-gold-pale">
                   Open begin
                 </button>
               </div>
@@ -149,13 +160,13 @@ export default function Vasten() {
           ))}
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <div className="card-shadow rounded-2xl border border-[#4a7c59]/40 bg-[#e3efe4] p-5">
             <h4 className="font-display text-xl font-semibold text-[#2c5138]">Vastenvrije weken</h4>
             <ul className="mt-3 space-y-2">
               {vrijP.map((p) => (
                 <li key={p.id} className="flex items-start justify-between gap-3 text-sm">
-                  <button type="button" onClick={() => openDag(ymd(p.start))} className="text-left font-semibold text-ink hover:text-wine">
+                  <button type="button" onClick={() => setGeselecteerdeDag(ymd(p.start))} className="text-left font-semibold text-ink hover:text-wine">
                     {p.naam}
                   </button>
                   <span className="shrink-0 text-ink-soft">
@@ -170,7 +181,7 @@ export default function Vasten() {
             <ul className="mt-3 space-y-2">
               {dagP.map((p) => (
                 <li key={p.id} className="flex items-start justify-between gap-3 text-sm">
-                  <button type="button" onClick={() => openDag(ymd(p.start))} className="text-left font-semibold text-ink hover:text-wine">
+                  <button type="button" onClick={() => setGeselecteerdeDag(ymd(p.start))} className="text-left font-semibold text-ink hover:text-wine">
                     {p.naam}
                   </button>
                   <span className="shrink-0 text-ink-soft">{formatDatum(p.start)}</span>
@@ -213,6 +224,40 @@ export default function Vasten() {
           </div>
         </div>
       </div>
+
+      {geselecteerdeDagInfo && (
+        <Modal open={Boolean(geselecteerdeDagInfo)} onClose={() => setGeselecteerdeDag(null)} eyebrow="Vasteninformatie" title={formatDatum(geselecteerdeDagInfo.civil)} maxWidth="max-w-2xl">
+            <div className="space-y-3">
+              <div className="text-[11px] font-bold tracking-[0.28em] text-gold-deep uppercase">{geselecteerdeDagInfo.weekdagNaam}</div>
+              <VastenBadge regel={geselecteerdeDagInfo.vasten} size="lg" />
+              <div>
+                <h3 className="font-display text-2xl font-semibold text-ink">{geselecteerdeDagInfo.weekdagNaam}</h3>
+                <p className="mt-1 font-display text-lg italic leading-relaxed text-ink-soft">{geselecteerdeDagInfo.vasten.detail}</p>
+              </div>
+              <div className="gold-rule my-5" />
+              <div>
+                <p className="mb-2 text-[10px] font-bold tracking-[0.24em] text-gold-deep uppercase">Vandaag onthouden van</p>
+                <div className="grid grid-cols-6 gap-1 sm:gap-2">
+                  {onthoudingen.map(({ label, toegestaan, Icon }) => (
+                    <div key={label} className="flex min-w-0 flex-col items-center gap-1 px-0.5 py-1.5 text-center">
+                      <span className="flex h-8 w-8 items-center justify-center text-[#765b42]">
+                        <Icon className="h-5 w-5" strokeWidth={1.5} />
+                      </span>
+                      <span className="text-base font-semibold leading-none" style={{ color: toegestaan ? '#4a7c59' : '#7b1e1e' }}>{toegestaan ? '✓' : '×'}</span>
+                      <span className="font-display text-[11px] leading-tight text-[#5c4d38] sm:text-sm">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {geselecteerdeDagInfo.vasten.periode && <p className="text-sm font-semibold text-gold-deep">{geselecteerdeDagInfo.vasten.periode}</p>}
+              <div className="gold-rule mt-5" />
+              <blockquote className="font-display pt-1 text-center text-lg italic leading-relaxed text-ink-soft">
+                “Waakt en bidt, opdat gij niet in verzoeking komt.”
+                <cite className="mt-1 block text-[10px] font-bold tracking-[0.24em] text-gold-deep uppercase not-italic">Matteüs 26:41</cite>
+              </blockquote>
+            </div>
+        </Modal>
+      )}
     </section>
   );
 }

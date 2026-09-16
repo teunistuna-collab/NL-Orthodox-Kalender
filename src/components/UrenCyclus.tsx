@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ChevronDown, Clock3, X } from 'lucide-react';
+import { ChevronDown, Church, Clock3 } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
+import Modal from './Modal';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
@@ -123,6 +124,8 @@ type PdfLine = {
   text: string;
 };
 
+const pdfTextCache = new Map<string, Array<Array<PdfLine>>>();
+
 export default function UrenCyclus() {
   const [open, setOpen] = useState<number | null>(null);
   const [modalState, setModalState] = useState<ModalState | null>(null);
@@ -144,6 +147,15 @@ export default function UrenCyclus() {
     }
 
     let active = true;
+    const cachedPages = pdfTextCache.get(currentPdfUrl);
+    if (cachedPages) {
+      setPdfPages(cachedPages);
+      setPdfStatus('done');
+      return () => {
+        active = false;
+      };
+    }
+
     setPdfStatus('loading');
     setPdfPages([]);
 
@@ -187,6 +199,7 @@ export default function UrenCyclus() {
         }
 
         if (!active) return;
+        pdfTextCache.set(currentPdfUrl, pages);
         setPdfPages(pages);
         setPdfStatus('done');
       } catch (error) {
@@ -270,7 +283,7 @@ export default function UrenCyclus() {
           </div>
         </article>
 
-        <div className="grid gap-6 md:grid-cols-[320px_minmax(0,1fr)] md:items-start">
+        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
         <div className="paper card-shadow rounded-[28px] border border-parchment-3 p-3">
           <div className="relative mx-auto aspect-square w-full max-w-[270px] overflow-hidden rounded-full bg-[#0e0705]">
             <svg viewBox="0 0 320 320" className="absolute inset-0 z-20 h-full w-full">
@@ -335,7 +348,7 @@ export default function UrenCyclus() {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 md:pt-2">
+        <div className="grid gap-3 sm:grid-cols-2 lg:pt-2">
           {serviceConfig.map((service, index) => {
             const isActive = activeIndex === index;
             return (
@@ -372,18 +385,47 @@ export default function UrenCyclus() {
         </div>
 
         {open !== null && modalState && (
-          <div className="fixed inset-0 z-[85] flex items-end justify-center bg-bark/75 p-0 backdrop-blur-sm sm:items-center sm:p-6" onClick={closeModal}>
-            <div role="dialog" aria-modal="true" aria-label={currentService.title} className="paper card-shadow max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-t-2xl text-ink sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
-              <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-[#d4aa3d]/30 bg-[#20150f] px-4 py-3 text-[#f5ebd7]">
-                <button type="button" onClick={previousService} className="rounded-full border border-[#d4aa3d]/50 px-3 py-1.5 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/5">← Vorige</button>
-                <div className="truncate text-center text-sm font-semibold tracking-[0.2em] uppercase text-[#f0cf7b]">{modalState.selectedPsalm ? currentService.title : currentService.title}</div>
-                <div className="flex items-center gap-2">
-                  <button type="button" onClick={nextService} className="rounded-full border border-[#d4aa3d]/50 px-3 py-1.5 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/5">Volgende →</button>
-                  <button type="button" onClick={closeModal} className="rounded-full p-2 hover:bg-white/10" aria-label="Sluiten"><X className="h-4 w-4" /></button>
+          <Modal
+            open={Boolean(open !== null && modalState)}
+            onClose={closeModal}
+            eyebrow="24-uurs cyclus"
+            title={currentService.title}
+            centerTitle
+            maxWidth="max-w-5xl"
+            leadingActions={<button type="button" onClick={previousService} className="inline-flex items-center gap-1 text-xs font-semibold tracking-[0.16em] text-[#f0cf7b] uppercase hover:text-[#fff8e9]" aria-label="Vorige dienst">← <span className="hidden sm:inline">Vorige uur</span></button>}
+            actions={<button type="button" onClick={nextService} className="inline-flex items-center gap-1 text-xs font-semibold tracking-[0.16em] text-[#f0cf7b] uppercase hover:text-[#fff8e9]" aria-label="Volgende dienst"><span className="hidden sm:inline">Volgende</span> →</button>}
+          >
+            <div className="space-y-6">
+              <div className="grid gap-6 border-b border-[#b29269] pb-6 lg:grid-cols-[0.9fr_1.1fr]">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f1e8d8] text-[#765b42]">
+                      <Clock3 className="h-5 w-5" strokeWidth={1.4} />
+                    </span>
+                    <div>
+                      <div className="text-[10px] font-bold tracking-[0.24em] text-gold-deep uppercase">Tijd</div>
+                      <div className="font-display text-xl text-ink">± {currentService.time}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f1e8d8] text-[#765b42]">
+                      <Church className="h-5 w-5" strokeWidth={1.4} />
+                    </span>
+                    <div>
+                      <div className="text-[10px] font-bold tracking-[0.24em] text-gold-deep uppercase">Categorie</div>
+                      <div className="font-display text-xl text-ink">Dagelijkse dienst</div>
+                    </div>
+                  </div>
                 </div>
+                <blockquote className="border-l border-gold/70 pl-6 font-display text-xl leading-relaxed text-ink-soft italic sm:text-2xl">
+                  “{currentService.kernvers.verses.join(' ')}”
+                  <cite className="mt-2 block text-[10px] font-bold tracking-[0.24em] text-gold-deep uppercase not-italic">{currentService.kernvers.reference.replace('Psalm Kernvers: ', 'Psalm ')}</cite>
+                </blockquote>
               </div>
 
-              <div className="border-b border-[#d4aa3d]/30 bg-[#f4ebdc] px-4 py-3">
+              <div className="gold-rule" />
+
+              <div className="border-b border-[#d4aa3d]/30 px-4 py-3">
                 {modalState.selectedPsalm ? (
                   <button type="button" onClick={() => setModalState({ serviceIndex: modalState.serviceIndex })} className="rounded-full border border-[#8a5a2b] bg-[#f0dca6] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#2a1b11] hover:bg-[#f6e6b8]">
                     ← Terug naar dienst
@@ -404,7 +446,7 @@ export default function UrenCyclus() {
                 ) : null}
               </div>
 
-              <div className="max-h-[70vh] overflow-y-auto bg-[#f2e8d8] p-3 sm:p-5">
+              <div className="max-h-[70vh] overflow-y-auto p-3 sm:p-5">
                 {pdfStatus === 'loading' && (
                   <div className="flex min-h-[30vh] items-center justify-center text-sm font-medium uppercase tracking-[0.18em] text-[#4a2b1c]">
                     Tekst wordt geladen…
@@ -422,67 +464,20 @@ export default function UrenCyclus() {
                     {pdfPages.map((page, pageIndex) => (
                       <article
                         key={`${currentTitle}-page-${pageIndex + 1}`}
-                        className="border border-[#8b6a4b] bg-[#f8f0e6] p-5 shadow-[0_14px_28px_rgba(25,15,10,0.12)] sm:p-8"
+                        className="border-b border-[#d4aa3d]/35 pb-7 pt-2 last:border-b-0 sm:pb-9"
                         style={{
-                          backgroundImage: 'linear-gradient(to bottom, rgba(90,53,31,0.03), rgba(90,53,31,0.01))',
-                          fontFamily: 'Georgia, "Times New Roman", serif',
-                          boxShadow: 'inset 0 0 0 1px rgba(94,67,46,0.12)',
+                          fontFamily: 'Cormorant Garamond, Georgia, "Times New Roman", serif',
                         }}
                       >
-                        <div className="mb-5 border-b border-[#b29269] pb-2 text-[10px] font-bold uppercase tracking-[0.26em] text-[#5c3d2d]">
-                          Pagina {pageIndex + 1}
-                        </div>
-                        <div className="space-y-1 text-[15px] leading-[2.05] tracking-[0.01em] text-[#1f120c] sm:text-[16px]">
+                        <div className="space-y-1 text-[17px] leading-[1.85] tracking-[0.005em] text-[#35251b] sm:text-[18px] sm:leading-[1.9]">
                           {(() => {
                             const rendered: Array<React.ReactNode> = [];
                             for (let lineIndex = 0; lineIndex < page.length; lineIndex += 1) {
                               const line = page[lineIndex];
-                              const isKernvers = !modalState.selectedPsalm && /kernvers/i.test(line.text);
-
-                              if (isKernvers) {
-                                const verses = currentService.kernvers.verses;
-                                let skippedLines = 0;
-                                for (let offset = 1; offset <= 4 && lineIndex + offset < page.length; offset += 1) {
-                                  const nextLine = page[lineIndex + offset].text.trim();
-                                  if (!nextLine) continue;
-                                  if (/^psalm\s+.*$/i.test(nextLine)) break;
-                                  if (/^(pagina|page)/i.test(nextLine)) break;
-                                  if (nextLine.length > 80) break;
-                                  skippedLines += 1;
-                                }
-
-                                rendered.push(
-                                  <div
-                                    key={`${currentTitle}-kernvers-${pageIndex + 1}-${lineIndex}`}
-                                    className="my-4 rounded-md border border-[#a48764] bg-[#f1e5d3] px-4 py-3"
-                                    style={{
-                                      marginLeft: `${Math.max(line.x * 0.04, 0)}px`,
-                                      boxShadow: 'inset 0 0 0 1px rgba(94,67,46,0.06)',
-                                    }}
-                                  >
-                                    <div className="mb-2 text-[10px] font-medium uppercase tracking-[0.24em] text-[#765b42]">
-                                      Psalm Kernvers
-                                    </div>
-                                    <div className="text-[1.02em] italic tracking-[0.01em] text-[#35251b]">
-                                      {currentService.kernvers.reference}
-                                    </div>
-                                    <div className="mt-2 space-y-1 text-[#35251b]">
-                                      {verses.map((verse, verseIndex) => (
-                                          <div key={`${currentTitle}-verse-${pageIndex + 1}-${lineIndex}-${verseIndex}`}>
-                                            {verse}
-                                          </div>
-                                      ))}
-                                    </div>
-                                  </div>,
-                                );
-                                lineIndex += skippedLines;
-                                continue;
-                              }
-
                               rendered.push(
                                 <div
                                   key={`${currentTitle}-line-${pageIndex + 1}-${lineIndex}`}
-                                  className="whitespace-pre-wrap"
+                                  className="whitespace-pre-wrap font-normal"
                                   style={{
                                     marginLeft: `${Math.max(line.x * 0.04, 0)}px`,
                                     textIndent: lineIndex === 0 ? '0' : '0.5rem',
@@ -508,7 +503,7 @@ export default function UrenCyclus() {
                 )}
               </div>
             </div>
-          </div>
+          </Modal>
         )}
       </div>
     </section>
