@@ -48,6 +48,7 @@ export default function DagModal({ ymd: geselecteerd, onClose, onNavigate }: Pro
       onClose={onClose}
       eyebrow={dag ? `${formatLang(dag.civil)}${mode === 'oud' ? ` · kerkelijk ${formatDag(dag.kerk)}` : ''}` : undefined}
       title={dag ? dag.feesten[0]?.naam ?? (curated[0] ? `H. ${curated[0].naam}` : htcDag?.l[0] ? vertaalLeven(htcDag.l[0][1]).replace(/\.$/, '') : 'Dag door het jaar') : ''}
+      centerTitle
       maxWidth="max-w-4xl"
       actions={dag ? (
         <>

@@ -226,7 +226,7 @@ export default function Vasten() {
       </div>
 
       {geselecteerdeDagInfo && (
-        <Modal open={Boolean(geselecteerdeDagInfo)} onClose={() => setGeselecteerdeDag(null)} eyebrow="Vasteninformatie" title={formatDatum(geselecteerdeDagInfo.civil)} maxWidth="max-w-2xl">
+        <Modal open={Boolean(geselecteerdeDagInfo)} onClose={() => setGeselecteerdeDag(null)} eyebrow="Vasteninformatie" title={formatDatum(geselecteerdeDagInfo.civil)} centerTitle maxWidth="max-w-2xl">
             <div className="space-y-3">
               <div className="text-[11px] font-bold tracking-[0.28em] text-gold-deep uppercase">{geselecteerdeDagInfo.weekdagNaam}</div>
               <VastenBadge regel={geselecteerdeDagInfo.vasten} size="lg" />

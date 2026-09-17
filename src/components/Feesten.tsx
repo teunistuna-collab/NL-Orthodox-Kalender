@@ -83,7 +83,7 @@ export default function Feesten() {
             if (!gekozen) return null;
             const { f, datum } = gekozen;
             return (
-              <Modal open={Boolean(open)} onClose={() => setOpen(null)} eyebrow={formatLang(datum)} title={f.naam} maxWidth="max-w-2xl">
+              <Modal open={Boolean(open)} onClose={() => setOpen(null)} eyebrow={formatLang(datum)} title={f.naam} centerTitle maxWidth="max-w-2xl">
                   <div className="space-y-4 text-base leading-relaxed text-ink-soft">
                     <p>{f.toelichting}</p>
                     {f.traditie && <p><strong className="text-gold-deep">Gebruiken: </strong>{f.traditie}</p>}

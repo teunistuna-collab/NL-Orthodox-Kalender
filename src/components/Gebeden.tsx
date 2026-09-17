@@ -98,7 +98,7 @@ function GebedVenster({ lijst, index, onClose, onIndex }: { lijst: Gebed[]; inde
   if (!g || index === null) return null;
 
   return (
-    <Modal open={Boolean(g && index !== null)} onClose={onClose} eyebrow={g ? `${CAT_LABEL[g.categorie]} · ${g.wanneer}` : undefined} title={g?.titel ?? ''} maxWidth="max-w-3xl" actions={g ? <KopieerKnop g={g} donker /> : undefined}>
+    <Modal open={Boolean(g && index !== null)} onClose={onClose} eyebrow={g ? `${CAT_LABEL[g.categorie]} · ${g.wanneer}` : undefined} title={g?.titel ?? ''} centerTitle maxWidth="max-w-3xl" actions={g ? <KopieerKnop g={g} donker /> : undefined}>
             <div className="px-0 py-1 sm:px-2 sm:py-2">
               {g.rubriek && <p className="mb-5 text-[15px] leading-relaxed text-ink-soft italic">{g.rubriek}</p>}
               <p className="font-display text-[21px] leading-[1.7] whitespace-pre-line text-ink sm:text-[23px]">{g.tekst}</p>

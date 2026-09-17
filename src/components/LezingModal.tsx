@@ -44,7 +44,7 @@ export default function LezingModal({ keuze, onClose }: Props) {
   const nbv = keuze ? nbv21Url(keuze.ref) : null;
 
   return (
-    <Modal open={Boolean(keuze)} onClose={onClose} eyebrow={`${keuze ? vertaalTag(keuze.tag, refNl) : ''} · ${keuze ? formatLang(keuze.civil) : ''}`} title={refNl} maxWidth="max-w-2xl">
+    <Modal open={Boolean(keuze)} onClose={onClose} eyebrow={`${keuze ? vertaalTag(keuze.tag, refNl) : ''} · ${keuze ? formatLang(keuze.civil) : ''}`} title={refNl} centerTitle maxWidth="max-w-2xl">
             <div>
               {/* NBV21 */}
               <div className="rounded-xl border border-gold/40 bg-gold-pale/60 p-5">

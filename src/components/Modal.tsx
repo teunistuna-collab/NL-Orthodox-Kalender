@@ -41,7 +41,7 @@ export default function Modal({ open, onClose, title, eyebrow, children, actions
               <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:mt-5">
                 <div className="justify-self-start">{leadingActions}</div>
                 <div className="text-center">
-                  <div className="mb-1 flex items-center justify-center gap-3 text-[#d9b45a]"><span className="h-px w-8 bg-[#d9b45a]" /><span className="text-lg leading-none">☦</span><span className="h-px w-8 bg-[#d9b45a]" /></div>
+                  <div className="mb-1 flex items-center justify-center gap-3 text-[#d9b45a]"><span className="h-px w-8 bg-[#d9b45a]" /><span className="text-2xl leading-none sm:text-3xl">☦</span><span className="h-px w-8 bg-[#d9b45a]" /></div>
                   <h2 id={labelledBy} className="font-display text-2xl font-semibold leading-tight tracking-[0.08em] text-[#fff8e9] uppercase sm:text-3xl">{title}</h2>
                 </div>
                 <div className="justify-self-end">{actions}</div>

@@ -170,7 +170,7 @@ export default function Heiligen() {
       </div>
 
       {geselecteerde && (
-        <Modal open={Boolean(geselecteerde)} onClose={() => setGeselecteerde(null)} eyebrow={formatMd(geselecteerde.md)} title={geselecteerde.naam} maxWidth="max-w-lg">
+        <Modal open={Boolean(geselecteerde)} onClose={() => setGeselecteerde(null)} eyebrow={formatMd(geselecteerde.md)} title={geselecteerde.naam} centerTitle maxWidth="max-w-lg">
             <div className="space-y-3">
               {geselecteerde.titel && <p className="font-semibold text-gold-deep">{geselecteerde.titel}</p>}
               {geselecteerde.kort && <p className="leading-relaxed text-ink-soft">{geselecteerde.kort}</p>}
