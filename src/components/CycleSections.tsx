@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import Modal from './Modal';
 
 type CycleCard = {
   title: string;
@@ -20,6 +21,48 @@ type CyclePageProps = {
 
 export function GoldDivider() {
   return <div className="gold-rule my-8" />;
+}
+
+// Gedeeld donker overgangsblok (citaat links, tekst + knop rechts) voor alle cycluspagina's.
+export function CycleTransition({
+  quote,
+  citation,
+  eyebrow,
+  text,
+  buttonLabel,
+  buttonHref,
+}: {
+  quote: string;
+  citation: string;
+  eyebrow: string;
+  text: string;
+  buttonLabel: string;
+  buttonHref: string;
+}) {
+  return (
+    <section className="orthodox-pattern box-border w-full overflow-hidden bg-bark text-cream">
+      <div className="mx-auto box-border w-full max-w-[1500px] px-5 py-8 min-[900px]:px-16 min-[900px]:py-12">
+        <div className="grid min-w-0 gap-8 min-[900px]:grid-cols-[35%_65%] min-[900px]:items-center min-[900px]:gap-14">
+          <div className="min-w-0 border-l border-gold/50 pl-6 min-[900px]:pl-8">
+            <blockquote className="font-display text-xl leading-relaxed break-words text-gold-light italic sm:text-2xl min-[900px]:text-[26px]">
+              “{quote}”
+            </blockquote>
+            <cite className="mt-4 block text-[11px] font-bold tracking-[0.2em] text-[#e8dcc0] uppercase not-italic sm:text-xs">{citation}</cite>
+          </div>
+          <div className="min-w-0 text-left">
+            <p className="text-xs font-bold tracking-[0.28em] text-gold-light uppercase sm:text-sm">{eyebrow}</p>
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed break-words text-[#d9c6a3] min-[900px]:text-lg">{text}</p>
+            <a
+              href={buttonHref}
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-gold/60 px-6 py-3 text-[11px] font-bold tracking-[0.2em] text-gold-light uppercase transition hover:bg-gold hover:text-bark min-[900px]:w-auto min-[900px]:justify-start"
+            >
+              {buttonLabel} →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
@@ -115,28 +158,17 @@ export function LiturgicalPopup({ open, onClose, content }: { open: boolean; onC
   if (!open || !content) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#160b08]/80 p-3 backdrop-blur-sm sm:p-6" onClick={onClose}>
-      <div role="dialog" aria-modal="true" className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[#c9a227]/65 bg-[#f8f1e3] text-ink shadow-[0_30px_70px_rgba(0,0,0,0.45)]" onClick={(event) => event.stopPropagation()}>
-        <header className="sticky top-0 z-10 border-b border-[#c9a227]/45 bg-[#200f09] px-5 py-4 text-[#f3e5c6] sm:px-7">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="text-[10px] font-bold tracking-[0.24em] text-gold-light uppercase">Lees meer</div>
-              <h3 className="font-display mt-1 text-2xl font-semibold text-gold-light sm:text-3xl">{content.title}</h3>
-            </div>
-            <button type="button" onClick={onClose} aria-label="Sluiten" className="rounded-full p-2 text-gold-light transition hover:bg-white/10">✕</button>
-          </div>
-        </header>
-        <div className="thin-scroll overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
-          {content.subtitle && <p className="mb-4 text-[11px] font-bold tracking-[0.22em] text-gold-deep uppercase">{content.subtitle}</p>}
-          {content.highlight && <div className="mb-5 rounded-xl border border-[#c9a227]/35 bg-[#f6ebc6] px-4 py-3 text-sm font-semibold text-gold-deep">{content.highlight}</div>}
-          <div className="space-y-4 text-base leading-relaxed text-ink-soft">
-            {content.paragraphs.map((paragraph, index) => (
-              <p key={`${content.title}-${index}`}>{paragraph}</p>
-            ))}
-          </div>
+    <Modal open={open} onClose={onClose} eyebrow="Lees meer" title={content.title} centerTitle maxWidth="max-w-3xl">
+      <div className="exact-popup-reading">
+        {content.subtitle && <p className="exact-popup-subtitle">{content.subtitle}</p>}
+        {content.highlight && <blockquote className="exact-popup-highlight">{content.highlight}</blockquote>}
+        <div className="exact-popup-prose">
+          {content.paragraphs.map((paragraph, index) => (
+            <p key={`${content.title}-${index}`}>{paragraph}</p>
+          ))}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -168,6 +200,17 @@ const DEFAULT_TIMELINE_ITEMS = [
   { id: 'jaar', label: 'JAAR', title: 'Het gehele kerkelijke jaar geheiligd', href: '#jaar' },
 ];
 
+
+export function TimeSanctificationTimeline({ current }: { current: string }) {
+  const items = [
+    { id: 'adem', label: 'ADEM', title: 'Christus in iedere ademhaling', href: '#adem', mark: '☦' },
+    { id: 'etmaal', label: 'ETMAAL', title: 'Gebed door dag en nacht', href: '#etmaal', mark: '†' },
+    { id: 'week', label: 'WEEK', title: 'Iedere dag zijn gedachtenis', href: '#week', mark: 'Κ' },
+    { id: 'pascha', label: 'PASCHA', title: 'De weg van Kruis naar Verrijzenis', href: '#pascha', mark: 'ΧΡ' },
+    { id: 'jaar', label: 'JAAR', title: 'Het gehele kerkelijke jaar geheiligd', href: '#jaar', mark: 'ΑΩ' },
+  ];
+  return <section className="v15-cycle-timeline"><p className="mb-6 text-center text-[10px] font-bold tracking-[.3em] text-gold-light uppercase">De heiliging van de tijd</p><div className="timeline-track">{items.map((item,index)=><div className="timeline-node" key={item.id}><a href={item.href} className={`timeline-core ${item.id===current?'active':''}`}><span className="timeline-medallion"><span className="liturgical-timeline-mark">{item.mark}</span></span><span className="timeline-label">{item.label}</span><span className="timeline-title">{item.title}</span></a>{index<items.length-1&&<span className="timeline-line"/>}</div>)}</div></section>;
+}
 export function BottomCycleTimeline({
   current,
   items = DEFAULT_TIMELINE_ITEMS,

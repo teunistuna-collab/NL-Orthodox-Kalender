@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Cross as CrossIcon, Droplet, Feather, Mountain, Moon, Sun, Users, type LucideIcon } from 'lucide-react';
 import Cross from './Cross';
-import { LiturgicalPopup } from './CycleSections';
+import { CycleTransition, LiturgicalPopup, TimeSanctificationTimeline } from './CycleSections';
 
 type DayKey = 'zondag' | 'maandag' | 'dinsdag' | 'woensdag' | 'donderdag' | 'vrijdag' | 'zaterdag';
 type InfoKey = 'wat' | 'dagen' | 'betekenis' | 'praktisch';
@@ -190,7 +190,7 @@ export default function Weekcyclus() {
                 key={key}
                 type="button"
                 onClick={() => setInfoOpen(key)}
-                className="orthodox-pattern group flex min-h-[260px] flex-col rounded-2xl border border-gold/35 bg-bark px-7 py-8 text-left text-cream shadow-[0_20px_50px_rgba(20,10,5,0.35)] transition duration-300 hover:border-gold/70 hover:shadow-[0_0_0_1px_rgba(201,162,39,0.35),0_28px_60px_rgba(20,10,5,0.45)] lg:min-h-[280px]"
+                className="ornate-card group flex min-h-[240px] flex-col px-7 py-8 text-left"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-full border border-gold/50 text-gold-light">
                   <Icon className="h-8 w-8" strokeWidth={1.2} />
@@ -223,11 +223,11 @@ export default function Weekcyclus() {
             {/* Desktop: cirkeldiagram */}
             <div className="relative mx-auto mt-12 hidden aspect-square w-full max-w-[820px] lg:block">
               <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
-                <circle cx="50" cy="50" r="34" fill="none" stroke="#c9a227" strokeWidth="0.35" opacity="0.75" />
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#c9a227" strokeWidth="0.35" opacity="0.75" />
                 {DAYS.map((day, index) => {
                   const angle = (360 / DAYS.length) * index;
                   const c = polar(50, 50, 15, angle);
-                  const p = polar(50, 50, 34, angle);
+                  const p = polar(50, 50, 30, angle);
                   return (
                     <line
                       key={`spoke-${day.key}`}
@@ -249,7 +249,7 @@ export default function Weekcyclus() {
 
               {DAYS.map((day, index) => {
                 const angle = (360 / DAYS.length) * index;
-                const pos = polar(50, 50, 34, angle);
+                const pos = polar(50, 50, 30, angle);
                 const isActive = hovered === index;
                 const leftSide = pos.x < 50;
                 const Icon = day.Icon;
@@ -261,8 +261,8 @@ export default function Weekcyclus() {
                     onClick={() => setDayOpen(day.key)}
                     onMouseEnter={() => setHovered(index)}
                     onMouseLeave={() => setHovered(null)}
-                    style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                    className={`absolute flex w-[220px] -translate-y-1/2 items-center gap-3 ${leftSide ? '-translate-x-full flex-row-reverse' : ''}`}
+                    style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: `translate(${leftSide ? 'calc(-100% + 28px)' : '-28px'}, -50%)` }}
+                    className={`absolute flex w-[220px] items-center gap-3 ${leftSide ? 'flex-row-reverse' : ''}`}
                   >
                     <span
                       className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 bg-[#1c130d] text-gold-light transition-all ${
@@ -314,67 +314,16 @@ export default function Weekcyclus() {
       </section>
 
       {/* Meer dan een kalender */}
-      <section className="orthodox-pattern bg-bark py-20 text-cream sm:py-24">
-        <div className={CONTENT}>
-          <div className="grid gap-12 lg:grid-cols-[35%_65%] lg:items-center lg:gap-16">
-            <div className="border-l border-gold/50 pl-8">
-              <blockquote className="font-display text-[26px] leading-relaxed text-gold-light italic sm:text-[28px]">
-                “Dit is de dag die de Heer gemaakt heeft; laat ons juichen en ons verheugen.”
-              </blockquote>
-              <cite className="mt-4 block text-[12px] font-bold tracking-[0.24em] text-[#e8dcc0] not-italic uppercase">Psalm 118:24</cite>
-            </div>
-            <div className="text-center lg:text-right">
-              <p className="text-[13px] font-bold tracking-[0.32em] text-gold-light uppercase sm:text-sm">Meer dan een kalender</p>
-              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#d9c6a3] sm:text-lg lg:ml-auto lg:mr-0">
-                De orthodoxe week is geen loutere opeenvolging van dagen. Zij begint in de vreugde van de Verrijzenis, voert de
-                gelovige langs de hemelse machten, de Voorloper, het Kruis, de apostolische verkondiging en de gedachtenis van
-                hen die in Christus ontslapen zijn, en opent zich vervolgens opnieuw naar de Dag des Heren. Zo wordt de tijd
-                zelf opgenomen in het gebed van de Kerk.
-              </p>
-              <a
-                href="#jaar"
-                className="mt-7 inline-flex items-center gap-2 rounded-full border border-gold/60 px-7 py-3 text-[11px] font-bold tracking-[0.22em] text-gold-light uppercase transition hover:bg-gold hover:text-bark"
-              >
-                Ontdek de jaarcyclus →
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CycleTransition
+        quote="Dit is de dag die de Heer gemaakt heeft; laat ons juichen en ons verheugen."
+        citation="Psalm 118:24"
+        eyebrow="Meer dan een kalender"
+        text="De orthodoxe week is geen loutere opeenvolging van dagen. Zij begint in de vreugde van de Verrijzenis, voert de gelovige langs de hemelse machten, de Voorloper, het Kruis, de apostolische verkondiging en de gedachtenis van hen die in Christus ontslapen zijn, en opent zich vervolgens opnieuw naar de Dag des Heren. Zo wordt de tijd zelf opgenomen in het gebed van de Kerk."
+        buttonLabel="Ontdek de jaarcyclus"
+        buttonHref="#jaar"
+      />
 
-      {/* De heiliging van de tijd */}
-      <section className="orthodox-pattern bg-bark px-4 py-16 text-cream sm:px-6 sm:py-20">
-        <div className={`${CONTENT} text-center`}>
-          <p className="text-[13px] font-bold tracking-[0.32em] text-gold-light uppercase sm:text-sm">De heiliging van de tijd</p>
-
-          <div className="mt-12 flex items-start justify-between gap-1 sm:gap-2">
-            {TIMELINE_ITEMS.map((item, index) => {
-              const active = item.id === 'week';
-              return (
-                <div key={item.id} className="flex flex-1 items-start">
-                  <div className="flex flex-1 flex-col items-center text-center">
-                    <a
-                      href={item.href}
-                      className={`flex h-[70px] w-[70px] items-center justify-center rounded-full border-2 font-display text-lg font-semibold transition sm:h-[85px] sm:w-[85px] sm:text-2xl ${
-                        active
-                          ? 'border-gold bg-[#2a1c15] text-gold-light shadow-[0_0_0_6px_rgba(201,162,39,0.18),0_0_28px_rgba(201,162,39,0.35)]'
-                          : 'border-gold/40 bg-[#1f150f] text-gold-light/80 hover:border-gold/70'
-                      }`}
-                    >
-                      {item.label[0]}
-                    </a>
-                    <div className={`mt-4 text-[11px] font-bold tracking-[0.24em] uppercase sm:text-xs ${active ? 'text-gold-light' : 'text-[#d8c39a]'}`}>
-                      {item.label}
-                    </div>
-                    <div className="mt-2 hidden text-xs leading-relaxed whitespace-pre-line text-[#e8dcc0] sm:block">{item.title}</div>
-                  </div>
-                  {index < TIMELINE_ITEMS.length - 1 && <div className="mt-[35px] h-px flex-1 bg-gradient-to-r from-gold/60 via-gold/40 to-gold/60 sm:mt-[42px]" />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <TimeSanctificationTimeline current="week" />
 
       <LiturgicalPopup open={dayOpen !== null} onClose={() => setDayOpen(null)} content={dayOpen ? DAY_POPUPS[dayOpen] : null} />
       <LiturgicalPopup open={infoOpen !== null} onClose={() => setInfoOpen(null)} content={infoOpen ? INFO_POPUPS[infoOpen] : null} />

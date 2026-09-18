@@ -7,17 +7,17 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-3 text-gold">
             <Cross className="h-9 w-6" />
-            <span className="font-display text-2xl font-semibold text-gold-light">Orthodoxe Kalender</span>
+            <span className="font-display text-2xl font-semibold text-gold-light">Orthodoxe Tijd</span>
           </div>
           <p className="mt-3 text-sm leading-relaxed">
-            Een Nederlandstalige liturgische kalender voor de oude én de nieuwe kalender: dagheiligen en schriftlezingen, Pascha-berekening, de grote
-            feesten, vastenregels en gebeden — voor thuis, op reis en in de kerk.
+            Een Nederlandstalige gids door de Orthodoxe tijd: gebed door de dag, de week en het kerkelijk jaar, heiligen, Schriftlezingen, Pascha, feesten en vasten — voor thuis, onderweg en in de kerk.
           </p>
         </div>
         <div>
           <h3 className="text-sm font-bold tracking-widest text-gold-light uppercase">Bronnen & verwijzingen</h3>
           <ul className="mt-3 space-y-2 text-sm">
             <li>Menologion en leesrooster: holytrinityorthodox.com (Juliaanse kalender, jaar 2026).</li>
+            <li>Aanvullende heiligenlevens en biografische gegevens: Orthodox Saint Finder (Cloud of Witnesses); verwerkt in eigen Nederlandse samenvattingen waar een betrouwbare koppeling beschikbaar is.</li>
             <li>Pascha volgens de Alexandrijnse paasregel (Nicea 325) op de Juliaanse kalender.</li>
             <li>Vastenregels naar het Typikon van Sabbas in zijn gangbare parochiële toepassing.</li>
             <li>Troparia en gebeden in eigen Nederlandse weergave.</li>

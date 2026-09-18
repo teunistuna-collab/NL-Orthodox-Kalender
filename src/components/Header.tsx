@@ -7,16 +7,23 @@ import { formatDag, kerkDatum, formatLang } from '../lib/kalender';
 export const SECTIES = [
   { id: 'vandaag', label: 'Vandaag', icon: Sun },
   { id: 'kalender', label: 'Kalender', icon: CalendarDays },
-  { id: 'pascha', label: 'Pascha', icon: Flame },
   { id: 'gebeden', label: 'Gebeden', icon: HandHeart },
   { id: 'vasten', label: 'Vasten', icon: Wheat },
   { id: 'heiligen', label: 'Heiligen', icon: BookOpen },
+  { id: 'pascha', label: 'Pascha', icon: Flame },
   { id: 'feesten', label: 'Feesten', icon: Sparkles },
 ];
 
 // Vandaag/Kalender komen vóór de Cycli-dropdown, de rest (incl. Pascha) erna.
 const NAV_LEADING = SECTIES.slice(0, 2);
-const NAV_TRAILING = SECTIES.slice(2);
+const PASCHA_NAV = SECTIES.find((s) => s.id === 'pascha')!;
+const NAV_TRAILING = SECTIES.slice(2).filter((s) => s.id !== 'pascha');
+
+
+const NAV_MARKS: Record<string, string> = {
+  vandaag: '☼', kalender: '✥', gebeden: '☦', vasten: '❧', heiligen: '✠', pascha: '☦', feesten: '✣', cycli: '◉',
+};
+const NavMark = ({ id }: { id: string }) => <span aria-hidden="true" className="orthodox-nav-mark">{NAV_MARKS[id] ?? '✣'}</span>;
 
 const CYCLUS_ITEMS = [
   { id: 'adem', label: '☦ ADEM', description: 'Het Jezusgebed en korte gebeden', href: '#adem' },
@@ -33,7 +40,7 @@ export default function Header() {
   const cyclusRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const els = [...SECTIES, { id: 'adem', label: 'Ahem', icon: Clock3 }, { id: 'etmaal', label: 'Etmaal', icon: Clock3 }, { id: 'week', label: 'Week', icon: Clock3 }, { id: 'jaar', label: 'Jaar', icon: Clock3 }]
+    const els = [...SECTIES, { id: 'adem', label: 'Adem', icon: Clock3 }, { id: 'etmaal', label: 'Etmaal', icon: Clock3 }, { id: 'week', label: 'Week', icon: Clock3 }, { id: 'jaar', label: 'Jaar', icon: Clock3 }]
       .map((s) => document.getElementById(s.id))
       .filter(Boolean) as HTMLElement[];
     if (!els.length) return;
@@ -64,14 +71,14 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 overflow-visible shadow-lg shadow-black/20">
       <div className="bg-bark text-cream">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-2.5">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-2.5">
           <a href="#vandaag" className="flex min-w-0 items-center gap-2 sm:gap-3">
             <span className="flex h-9 w-7 shrink-0 items-center justify-center text-gold sm:h-10 sm:w-8">
               <Cross className="h-8 w-5 sm:h-9 sm:w-6" />
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="font-display block truncate text-lg font-semibold tracking-wide text-gold-light sm:text-2xl">Orthodoxe Kalender</span>
-              <span className="hidden text-[10px] font-semibold tracking-[0.22em] text-[#bfa982] uppercase sm:block">Nederland · feesten · vasten · heiligen</span>
+              <span className="font-display block truncate text-lg font-semibold tracking-wide text-gold-light sm:text-2xl">Orthodoxe Tijd</span>
+              <span className="hidden text-[10px] font-semibold tracking-[0.22em] text-[#bfa982] uppercase sm:block">Een weg door de tijd · een leven met Christus</span>
             </span>
           </a>
 
@@ -106,7 +113,7 @@ export default function Header() {
       </div>
 
       <nav className={`${menuOpen ? 'block' : 'hidden'} relative z-[60] overflow-visible border-t border-gold/20 bg-bark-2 text-cream sm:block`}>
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-2 py-2 sm:flex-row sm:overflow-visible sm:py-0 sm:px-4">
+        <div className="mx-auto flex max-w-[1500px] flex-col gap-1 px-2 py-2 sm:flex-row sm:justify-evenly sm:overflow-visible sm:py-0">
           {NAV_LEADING.map(({ id, label, icon: Icon }) => {
             const on = actief === id;
             return (
@@ -118,7 +125,7 @@ export default function Header() {
                   on ? 'text-gold-light' : 'text-[#bfa982] hover:text-cream'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <NavMark id={id} />
                 {label}
                 <span className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-gold transition-opacity ${on ? 'opacity-100' : 'opacity-0'}`} />
               </a>
@@ -140,7 +147,7 @@ export default function Header() {
                 cyclusActief ? 'text-gold-light' : 'text-[#bfa982] hover:text-cream'
               }`}
             >
-              <Clock3 className="h-3.5 w-3.5" />
+              <NavMark id="cycli" />
               CYCLI
               <ChevronDown className={`h-3.5 w-3.5 transition ${cyclusOpen ? 'rotate-180' : ''}`} />
               <span className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-gold transition-opacity ${cyclusActief ? 'opacity-100' : 'opacity-0'}`} />
@@ -170,6 +177,15 @@ export default function Header() {
             )}
           </div>
 
+          <a
+            href="#pascha"
+            onClick={() => { setActief('pascha'); setMenuOpen(false); }}
+            className={`relative hidden shrink-0 items-center gap-1.5 px-3 py-2.5 text-[12px] font-bold tracking-wider uppercase transition sm:flex ${actief === 'pascha' ? 'text-gold-light' : 'text-[#bfa982] hover:text-cream'}`}
+          >
+            <NavMark id="pascha" />Pascha
+            <span className={`absolute inset-x-3 bottom-0 h-0.5 bg-gold ${actief === 'pascha' ? 'opacity-100' : 'opacity-0'}`} />
+          </a>
+
           {NAV_TRAILING.map(({ id, label, icon: Icon }) => {
             const on = actief === id;
             return (
@@ -181,7 +197,7 @@ export default function Header() {
                   on ? 'text-gold-light' : 'text-[#bfa982] hover:text-cream'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <NavMark id={id} />
                 {label}
                 <span className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-gold transition-opacity ${on ? 'opacity-100' : 'opacity-0'}`} />
               </a>
@@ -199,7 +215,7 @@ export default function Header() {
                   on ? 'text-gold-light' : 'text-[#bfa982] hover:text-cream'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <NavMark id={id} />
                 {label}
                 <span className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-gold transition-opacity ${on ? 'opacity-100' : 'opacity-0'}`} />
               </a>
@@ -212,7 +228,7 @@ export default function Header() {
               onClick={() => setCyclusOpen((open) => !open)}
               className={`relative flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-[12px] font-bold tracking-wider uppercase transition ${cyclusActief ? 'text-gold-light' : 'text-[#bfa982]'}`}
             >
-              <span className="flex items-center gap-1.5"><Clock3 className="h-3.5 w-3.5" />CYCLI</span>
+              <span className="flex items-center gap-1.5"><NavMark id="cycli" />CYCLI</span>
               <ChevronDown className={`h-3.5 w-3.5 transition ${cyclusOpen ? 'rotate-180' : ''}`} />
             </button>
             {cyclusOpen && (
@@ -247,7 +263,7 @@ export default function Header() {
                   on ? 'text-gold-light' : 'text-[#bfa982] hover:text-cream'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <NavMark id={id} />
                 {label}
                 <span className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-gold transition-opacity ${on ? 'opacity-100' : 'opacity-0'}`} />
               </a>

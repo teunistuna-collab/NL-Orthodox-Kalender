@@ -3,6 +3,7 @@ import { Bird, BookOpen, ChevronDown, Church, Clock3, Compass, HelpCircle, Heart
 import * as pdfjsLib from 'pdfjs-dist';
 import Modal from './Modal';
 import Cross from './Cross';
+import { CycleTransition, TimeSanctificationTimeline } from './CycleSections';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
@@ -373,7 +374,7 @@ export default function UrenCyclus() {
                 key={key}
                 type="button"
                 onClick={() => setInfoOpen(key)}
-                className="orthodox-pattern group flex min-h-[260px] flex-col rounded-2xl border border-gold/35 bg-bark px-7 py-8 text-left text-cream shadow-[0_20px_50px_rgba(20,10,5,0.35)] transition duration-300 hover:border-gold/70 hover:shadow-[0_0_0_1px_rgba(201,162,39,0.35),0_28px_60px_rgba(20,10,5,0.45)] lg:min-h-[280px]"
+                className="ornate-card group flex min-h-[240px] flex-col px-7 py-8 text-left"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-full border border-gold/50 text-gold-light">
                   <Icon className="h-8 w-8" strokeWidth={1.2} />
@@ -406,15 +407,15 @@ export default function UrenCyclus() {
             {/* Desktop: cirkeldiagram */}
             <div className="relative mx-auto mt-12 hidden aspect-square w-full max-w-[820px] lg:block">
               <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
-                <circle cx="50" cy="50" r="34" fill="none" stroke="#c9a227" strokeWidth="0.35" opacity="0.75" />
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#c9a227" strokeWidth="0.35" opacity="0.75" />
                 {/* Kompasaccenten op de vier kardinale punten van de ring */}
                 {[0, 90, 180, 270].map((deg) => {
-                  const p = polar(50, 50, 34, deg);
+                  const p = polar(50, 50, 30, deg);
                   return <circle key={deg} cx={p.x} cy={p.y} r="0.9" fill="#c9a227" opacity="0.8" />;
                 })}
                 {serviceConfig.map((service, index) => {
                   const angle = 22.5 + (360 / serviceConfig.length) * index;
-                  const p = polar(50, 50, 34, angle);
+                  const p = polar(50, 50, 30, angle);
                   const c = polar(50, 50, 15, angle);
                   return (
                     <line
@@ -437,7 +438,7 @@ export default function UrenCyclus() {
 
               {serviceConfig.map((service, index) => {
                 const angle = 22.5 + (360 / serviceConfig.length) * index;
-                const pos = polar(50, 50, 34, angle);
+                const pos = polar(50, 50, 30, angle);
                 const isActive = activeIndex === index;
                 const leftSide = pos.x < 50;
                 const Icon = SERVICE_ICONS[service.title];
@@ -470,10 +471,10 @@ export default function UrenCyclus() {
                     onMouseEnter={() => setHovered(index)}
                     onMouseLeave={() => setHovered(null)}
                     style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                    className={`absolute flex w-[240px] -translate-y-1/2 items-center gap-3 ${leftSide ? '-translate-x-full flex-row-reverse' : ''}`}
+                    className={`etmaal-ring-node absolute ${leftSide ? 'is-left' : 'is-right'}`}
                   >
-                    {badge}
-                    {text}
+                    <span className="etmaal-ring-badge">{badge}</span>
+                    <span className="etmaal-ring-text">{text}</span>
                   </button>
                 );
               })}
@@ -484,28 +485,28 @@ export default function UrenCyclus() {
               <p className="mt-1 text-[10px] font-bold tracking-[0.18em] text-gold-deep uppercase">Psalm 119:164</p>
             </div>
 
-            {/* Tablet/mobiel: verticale cyclus */}
+            {/* Tablet/mobiel: dezelfde kaartstijl als de dagen van de weekcyclus */}
             <div className="mt-10 space-y-3 lg:hidden">
               {serviceConfig.map((service, index) => {
-                const isActive = activeIndex === index;
+                const Icon = SERVICE_ICONS[service.title];
                 return (
                   <button
                     key={`${service.title}-mobile-${index}`}
                     type="button"
                     onClick={() => openService(index)}
-                    className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-4 text-left transition-all ${isActive ? 'border-gold/70 bg-gold-pale shadow-[0_0_0_1px_rgba(201,162,39,0.2)]' : 'border-parchment-3 bg-paper hover:border-gold'}`}
+                    className="group flex w-full items-center gap-4 rounded-2xl border border-parchment-3 bg-paper px-4 py-4 text-left transition-all hover:border-gold hover:shadow-[0_8px_24px_rgba(77,48,24,0.10)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/50 text-sm font-bold text-[#1a100c]" style={{ background: service.dot }}>
-                      {index + 1}
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/50 bg-[#1c130d] text-gold-light transition group-hover:border-gold">
+                      {Icon ? <Icon className="h-5 w-5" strokeWidth={1.4} /> : <Cross className="h-5 w-5" />}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="font-display block text-xl font-semibold text-ink">{service.title}</span>
                       <span className="mt-0.5 flex items-center gap-2 text-xs text-ink-soft">
-                        <Clock3 className="h-3.5 w-3.5" />
-                        {service.time} · {service.hoofdgedachtenis}
+                        <Clock3 className="h-3.5 w-3.5 shrink-0" />
+                        <span>{service.time} · {service.hoofdgedachtenis}</span>
                       </span>
                     </span>
-                    <ChevronDown className="h-5 w-5 shrink-0 text-[#d4aa3d]" />
+                    <ChevronDown className="h-5 w-5 shrink-0 text-gold-deep transition-transform group-hover:translate-y-0.5" />
                   </button>
                 );
               })}
@@ -515,207 +516,17 @@ export default function UrenCyclus() {
       </section>
 
       {/* Meer dan een dagindeling */}
-      <section className="orthodox-pattern bg-bark py-20 text-cream sm:py-24">
-        <div className={CONTENT}>
-          <div className="grid gap-12 lg:grid-cols-[35%_65%] lg:items-center lg:gap-16">
-            <div className="border-l border-gold/50 pl-8">
-              <blockquote className="font-display text-[26px] leading-relaxed text-gold-light italic sm:text-[28px]">
-                “Zevenmaal daags prijs ik U, omwille van Uw rechtvaardige oordelen.”
-              </blockquote>
-              <cite className="mt-4 block text-[12px] font-bold tracking-[0.24em] text-[#e8dcc0] not-italic uppercase">Psalm 119:164</cite>
-            </div>
-            <div className="text-center lg:text-right">
-              <p className="text-[13px] font-bold tracking-[0.32em] text-gold-light uppercase sm:text-sm">Meer dan een dagindeling</p>
-              <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[#d9c6a3] sm:text-lg lg:ml-auto lg:mr-0">
-                Het etmaal is geen strak schema, maar een levensritme. Het herinnert er ons aan dat heel onze tijd in Gods handen
-                ligt en dat elk moment een ontmoeting met Hem kan zijn.
-              </p>
-              <a
-                href="#week"
-                className="mt-7 inline-flex items-center gap-2 rounded-full border border-gold/60 px-7 py-3 text-[11px] font-bold tracking-[0.22em] text-gold-light uppercase transition hover:bg-gold hover:text-bark"
-              >
-                Ontdek de weekcyclus →
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CycleTransition
+        quote="Zevenmaal daags prijs ik U, omwille van Uw rechtvaardige oordelen."
+        citation="Psalm 119:164"
+        eyebrow="Meer dan een dagindeling"
+        text="Het etmaal is geen strak schema, maar een levensritme. Het herinnert er ons aan dat heel onze tijd in Gods handen ligt en dat elk moment een ontmoeting met Hem kan zijn."
+        buttonLabel="Ontdek de weekcyclus"
+        buttonHref="#week"
+      />
 
-      {/* De heiliging van de tijd */}
-      <section className="orthodox-pattern bg-bark px-4 py-16 text-cream sm:px-6 sm:py-20">
-        <div className={`${CONTENT} text-center`}>
-          <p className="text-[13px] font-bold tracking-[0.32em] text-gold-light uppercase sm:text-sm">De heiliging van de tijd</p>
+      <TimeSanctificationTimeline current="etmaal" />
 
-          <div className="mt-12 flex items-start justify-between gap-1 sm:gap-2">
-            {TIMELINE_ITEMS.map((item, index) => {
-              const active = item.id === 'etmaal';
-              return (
-                <div key={item.id} className="flex flex-1 items-start">
-                  <div className="flex flex-1 flex-col items-center text-center">
-                    <a
-                      href={item.href}
-                      className={`flex h-[70px] w-[70px] items-center justify-center rounded-full border-2 font-display text-lg font-semibold transition sm:h-[85px] sm:w-[85px] sm:text-2xl ${
-                        active
-                          ? 'border-gold bg-[#2a1c15] text-gold-light shadow-[0_0_0_6px_rgba(201,162,39,0.18),0_0_28px_rgba(201,162,39,0.35)]'
-                          : 'border-gold/40 bg-[#1f150f] text-gold-light/80 hover:border-gold/70'
-                      }`}
-                    >
-                      {item.label[0]}
-                    </a>
-                    <div className={`mt-4 text-[11px] font-bold tracking-[0.24em] uppercase sm:text-xs ${active ? 'text-gold-light' : 'text-[#d8c39a]'}`}>
-                      {item.label}
-                    </div>
-                    <div className="mt-2 hidden text-xs leading-relaxed whitespace-pre-line text-[#e8dcc0] sm:block">{item.title}</div>
-                  </div>
-                  {index < TIMELINE_ITEMS.length - 1 && <div className="mt-[35px] h-px flex-1 bg-gradient-to-r from-gold/60 via-gold/40 to-gold/60 sm:mt-[42px]" />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <Modal
-        open={infoOpen !== null}
-        onClose={() => setInfoOpen(null)}
-        eyebrow="ETMAAL"
-        title={infoOpen ? INFO_POPUPS[infoOpen].title : ''}
-        centerTitle
-        maxWidth="max-w-3xl"
-      >
-        {infoOpen && (
-          <div className="space-y-4">
-            <p className="text-center text-[11px] font-bold tracking-[0.22em] text-gold-deep uppercase">{INFO_POPUPS[infoOpen].subtitle}</p>
-            <div className="space-y-4 text-base leading-relaxed text-ink-soft">
-              {INFO_POPUPS[infoOpen].paragraphs.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {open !== null && modalState && (
-        <Modal
-            open={Boolean(open !== null && modalState)}
-            onClose={closeModal}
-            eyebrow="ETMAAL"
-            title={currentService.title}
-            centerTitle
-            maxWidth="max-w-5xl"
-            leadingActions={<button type="button" onClick={previousService} className="inline-flex items-center gap-1 text-xs font-semibold tracking-[0.16em] text-[#f0cf7b] uppercase hover:text-[#fff8e9]" aria-label="Vorige dienst">← <span className="hidden sm:inline">Vorige uur</span></button>}
-            actions={<button type="button" onClick={nextService} className="inline-flex items-center gap-1 text-xs font-semibold tracking-[0.16em] text-[#f0cf7b] uppercase hover:text-[#fff8e9]" aria-label="Volgende dienst"><span className="hidden sm:inline">Volgende</span> →</button>}
-          >
-            <div className="space-y-6">
-              <div className="grid gap-6 border-b border-[#b29269] pb-6 lg:grid-cols-[0.9fr_1.1fr]">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f1e8d8] text-[#765b42]">
-                      <Clock3 className="h-5 w-5" strokeWidth={1.4} />
-                    </span>
-                    <div>
-                      <div className="text-[10px] font-bold tracking-[0.24em] text-gold-deep uppercase">Tijd</div>
-                      <div className="font-display text-xl text-ink">± {currentService.time}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f1e8d8] text-[#765b42]">
-                      <Church className="h-5 w-5" strokeWidth={1.4} />
-                    </span>
-                    <div>
-                      <div className="text-[10px] font-bold tracking-[0.24em] text-gold-deep uppercase">Categorie</div>
-                      <div className="font-display text-xl text-ink">Dagelijkse dienst</div>
-                    </div>
-                  </div>
-                </div>
-                <blockquote className="border-l border-gold/70 pl-6 font-display text-xl leading-relaxed text-ink-soft italic sm:text-2xl">
-                  “{currentService.kernvers.verses.join(' ')}”
-                  <cite className="mt-2 block text-[10px] font-bold tracking-[0.24em] text-gold-deep uppercase not-italic">{currentService.kernvers.reference.replace('Psalm Kernvers: ', 'Psalm ')}</cite>
-                </blockquote>
-              </div>
-
-              <div className="gold-rule" />
-
-              <div className="border-b border-[#d4aa3d]/30 px-4 py-3">
-                {modalState.selectedPsalm ? (
-                  <button type="button" onClick={() => setModalState({ serviceIndex: modalState.serviceIndex })} className="rounded-full border border-[#8a5a2b] bg-[#f0dca6] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#2a1b11] hover:bg-[#f6e6b8]">
-                    ← Terug naar dienst
-                  </button>
-                ) : currentService.psalms.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {currentService.psalms.map((psalm) => (
-                      <button
-                        key={psalm.title}
-                        type="button"
-                        onClick={() => openPsalm(modalState.serviceIndex, psalm)}
-                        className="rounded-full border border-[#8a5a2b] bg-[#f0dca6] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#2a1b11] hover:bg-[#f6e6b8]"
-                      >
-                        {psalm.title}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="max-h-[70vh] overflow-y-auto p-3 sm:p-5">
-                {pdfStatus === 'loading' && (
-                  <div className="flex min-h-[30vh] items-center justify-center text-sm font-medium uppercase tracking-[0.18em] text-[#4a2b1c]">
-                    Tekst wordt geladen…
-                  </div>
-                )}
-
-                {pdfStatus === 'error' && (
-                  <div className="flex min-h-[30vh] items-center justify-center text-center text-base font-medium text-[#4a2b1c]">
-                    De tekst van {currentTitle} kon niet worden geladen.
-                  </div>
-                )}
-
-                {pdfStatus === 'done' && pdfPages.length > 0 && (
-                  <div className="mx-auto max-w-4xl space-y-5">
-                    {pdfPages.map((page, pageIndex) => (
-                      <article
-                        key={`${currentTitle}-page-${pageIndex + 1}`}
-                        className="border-b border-[#d4aa3d]/35 pb-7 pt-2 last:border-b-0 sm:pb-9"
-                        style={{
-                          fontFamily: 'Cormorant Garamond, Georgia, "Times New Roman", serif',
-                        }}
-                      >
-                        <div className="space-y-1 text-[17px] leading-[1.85] tracking-[0.005em] text-[#35251b] sm:text-[18px] sm:leading-[1.9]">
-                          {(() => {
-                            const rendered: Array<React.ReactNode> = [];
-                            for (let lineIndex = 0; lineIndex < page.length; lineIndex += 1) {
-                              const line = page[lineIndex];
-                              rendered.push(
-                                <div
-                                  key={`${currentTitle}-line-${pageIndex + 1}-${lineIndex}`}
-                                  className="whitespace-pre-wrap font-normal"
-                                  style={{
-                                    marginLeft: `${Math.max(line.x * 0.04, 0)}px`,
-                                    textIndent: lineIndex === 0 ? '0' : '0.5rem',
-                                  }}
-                                >
-                                  {line.text}
-                                </div>,
-                              );
-                            }
-
-                            return rendered;
-                          })()}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
-
-                {pdfStatus === 'done' && pdfPages.length === 0 && (
-                  <div className="flex min-h-[30vh] items-center justify-center text-center text-base font-medium text-[#4a2b1c]">
-                    Er is geen tekst gevonden in {currentTitle}.
-                  </div>
-                )}
-              </div>
-            </div>
-          </Modal>
-        )}
     </>
   );
 }

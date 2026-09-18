@@ -1,17 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Copy, Maximize2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { BookOpen, Cross as CrossIcon, Feather, Flame, HeartHandshake, Moon, Search, Sparkles, Sun, Users, X, type LucideIcon } from 'lucide-react';
 import { GEBEDEN, type Gebed } from '../lib/gebeden';
-import { SectionTitle } from './ui';
-import Modal from './Modal';
+import { LiturgicalPopup, CycleTransition } from './CycleSections';
 
-const CATS: { id: Gebed['categorie'] | 'alle'; label: string }[] = [
-  { id: 'alle', label: 'Alle gebeden' },
-  { id: 'ochtend', label: 'Morgengebeden' },
-  { id: 'avond', label: 'Voor het slapengaan' },
-  { id: 'dagelijks', label: 'Dagelijks' },
-  { id: 'liturgisch', label: 'Liturgisch' },
-  { id: 'akathisten', label: 'Akathisten' },
-];
+const CONTENT = 'mx-auto w-full max-w-[1500px] px-4 sm:px-8 lg:px-12';
 
 const CAT_LABEL: Record<Gebed['categorie'], string> = {
   ochtend: 'Morgengebeden',
@@ -23,147 +15,198 @@ const CAT_LABEL: Record<Gebed['categorie'], string> = {
   akathisten: 'Akathisten',
 };
 
-function KopieerKnop({ g, donker }: { g: Gebed; donker?: boolean }) {
-  const [gekopieerd, setGekopieerd] = useState(false);
-  const kopieer = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(`${g.titel}\n\n${g.tekst}`);
-      setGekopieerd(true);
-      setTimeout(() => setGekopieerd(false), 1600);
-    } catch {
-      /* geen klembord */
-    }
-  };
+type CategorieDef = {
+  id: string;
+  label: string;
+  omschrijving: string;
+  icon: LucideIcon;
+  match: (g: Gebed) => boolean;
+};
+
+// Groepering is uitsluitend een presentatielaag boven de bestaande GEBEDEN-dataset; geen nieuwe gebedsdata.
+const CATEGORIEN: CategorieDef[] = [
+  { id: 'ochtend', label: 'Ochtendgebeden', omschrijving: 'Gebeden bij het ontwaken, vóór de iconen.', icon: Sun, match: (g) => g.categorie === 'ochtend' },
+  { id: 'avond', label: 'Avondgebeden', omschrijving: 'Gebeden voor het slapengaan.', icon: Moon, match: (g) => g.categorie === 'avond' },
+  { id: 'jezusgebed', label: 'Het Jezusgebed', omschrijving: 'Het onophoudelijke gebed, door de dag heen met het gebedssnoer.', icon: CrossIcon, match: (g) => g.id === 'jezusgebed' },
+  { id: 'moeder-gods', label: 'Gebeden tot de Moeder Gods', omschrijving: 'Akathist en aanroepingen tot de Moeder Gods.', icon: Sparkles, match: (g) => g.id === 'akathist-moeder-gods' },
+  { id: 'gezin', label: 'Gebeden voor gezin en kinderen', omschrijving: 'Voor ouders en kinderen samen.', icon: Users, match: (g) => g.id === 'gebed-voor-het-gezin' },
+  { id: 'nood', label: 'Gebeden bij ziekte en nood', omschrijving: 'In tijden van nood, leegte en lijden.', icon: HeartHandshake, match: (g) => g.id === 'gebed-in-nood' },
+  { id: 'overledenen', label: 'Gebeden voor overledenen', omschrijving: 'Gedachtenis van hen die ontslapen zijn.', icon: Flame, match: (g) => g.id === 'akathist-ontslapenen' },
+  {
+    id: 'akathisten',
+    label: 'Akathisten',
+    omschrijving: 'Lofzangen tot heiligen en de Moeder Gods.',
+    icon: BookOpen,
+    match: (g) => g.categorie === 'akathisten' && g.id !== 'akathist-moeder-gods' && g.id !== 'akathist-ontslapenen',
+  },
+  {
+    id: 'overig',
+    label: 'Overige gebeden',
+    omschrijving: 'Voor de gebedsregel en de Goddelijke Liturgie.',
+    icon: Feather,
+    match: (g) => ['inleidende-gebeden-pdf', 'psalm-50-pdf', 'geloofsbelijdenis-pdf', 'kanon-beschermengel'].includes(g.id),
+  },
+];
+
+function PrayerCard({ g, onOpen }: { g: Gebed; onOpen: () => void }) {
   return (
     <button
       type="button"
-      onClick={kopieer}
-      className={`shrink-0 rounded-full border p-2 transition ${donker ? 'border-gold/40 text-gold-light hover:bg-white/10' : 'border-parchment-4 text-gold-deep hover:border-gold hover:bg-gold-pale'}`}
-      title="Kopieer gebed"
-      aria-label="Kopieer gebed"
+      onClick={onOpen}
+      className="group rounded-xl border border-gold/30 bg-[#f8f1e3] p-4 text-left transition hover:border-gold/70 hover:shadow-[0_10px_24px_rgba(120,80,30,0.12)]"
     >
-      {gekopieerd ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+      <p className="text-[10px] font-bold tracking-[0.2em] text-gold-deep uppercase">{g.wanneer}</p>
+      <h4 className="font-display mt-1 text-lg font-semibold text-ink">{g.titel}</h4>
+      <span className="mt-2 inline-flex items-center gap-1 text-xs font-bold tracking-[0.14em] text-gold-deep uppercase underline-offset-4 group-hover:underline">
+        Open gebed →
+      </span>
     </button>
   );
 }
 
-/** Compacte kaart: titel, rubriek en de eerste regels. */
-function GebedKaart({ g, onOpen }: { g: Gebed; onOpen: () => void }) {
-  return (
-    <article
-      role="button"
-      tabIndex={0}
-      onClick={onOpen}
-      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onOpen())}
-      className="paper card-shadow group flex cursor-pointer flex-col rounded-2xl border border-transparent p-5 text-ink transition hover:-translate-y-0.5 hover:border-gold"
-      title="Tik om het gebed groot te lezen"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-[10px] font-bold tracking-[0.22em] text-gold-deep uppercase">{g.wanneer}</p>
-          <h3 className="font-display mt-1 text-xl leading-tight font-semibold">{g.titel}</h3>
-        </div>
-        <KopieerKnop g={g} />
-      </div>
-      <div className="gold-rule my-3" />
-      <div className="mt-4 flex items-center justify-end text-[11px] font-bold text-gold-deep">
-        <span className="inline-flex items-center gap-1 group-hover:underline">
-          <Maximize2 className="h-3.5 w-3.5" /> Groot lezen
-        </span>
-      </div>
-    </article>
-  );
-}
-
-/** Groot leesvenster met bladeren tussen gebeden. */
-function GebedVenster({ lijst, index, onClose, onIndex }: { lijst: Gebed[]; index: number | null; onClose: () => void; onIndex: (i: number) => void }) {
-  const g = index !== null ? lijst[index] : null;
-
-  useEffect(() => {
-    if (index === null) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowLeft' && index > 0) onIndex(index - 1);
-      if (e.key === 'ArrowRight' && index < lijst.length - 1) onIndex(index + 1);
-    };
-    window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
-  }, [index, lijst.length, onClose, onIndex]);
-
-  if (!g || index === null) return null;
-
-  return (
-    <Modal open={Boolean(g && index !== null)} onClose={onClose} eyebrow={g ? `${CAT_LABEL[g.categorie]} · ${g.wanneer}` : undefined} title={g?.titel ?? ''} centerTitle maxWidth="max-w-3xl" actions={g ? <KopieerKnop g={g} donker /> : undefined}>
-            <div className="px-0 py-1 sm:px-2 sm:py-2">
-              {g.rubriek && <p className="mb-5 text-[15px] leading-relaxed text-ink-soft italic">{g.rubriek}</p>}
-              <p className="font-display text-[21px] leading-[1.7] whitespace-pre-line text-ink sm:text-[23px]">{g.tekst}</p>
-              <div className="gold-rule mt-8" />
-              <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-                <button
-                  type="button"
-                  disabled={index === 0}
-                  onClick={() => onIndex(index - 1)}
-                  className="inline-flex items-center gap-1 rounded-full border border-parchment-4 px-3 py-1.5 font-bold text-gold-deep disabled:opacity-30 hover:border-gold"
-                >
-                  <ChevronLeft className="h-4 w-4" /> Vorige
-                </button>
-                <span className="text-xs text-ink-mute">
-                  {index + 1} / {lijst.length}
-                </span>
-                <button
-                  type="button"
-                  disabled={index === lijst.length - 1}
-                  onClick={() => onIndex(index + 1)}
-                  className="inline-flex items-center gap-1 rounded-full border border-parchment-4 px-3 py-1.5 font-bold text-gold-deep disabled:opacity-30 hover:border-gold"
-                >
-                  Volgende <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-    </Modal>
-  );
-}
-
 export default function Gebeden() {
-  const [cat, setCat] = useState<(typeof CATS)[number]['id']>('alle');
-  const [open, setOpen] = useState<number | null>(null);
-  const lijst = GEBEDEN.filter((g) => cat === 'alle' || g.categorie === cat);
+  const [zoek, setZoek] = useState('');
+  const [actieveCat, setActieveCat] = useState<string | null>(null);
+  const [popupGebed, setPopupGebed] = useState<Gebed | null>(null);
+
+  const zoekterm = zoek.trim().toLowerCase();
+  const gezocht = useMemo(
+    () =>
+      zoekterm
+        ? GEBEDEN.filter((g) => g.titel.toLowerCase().includes(zoekterm) || g.wanneer.toLowerCase().includes(zoekterm) || CAT_LABEL[g.categorie].toLowerCase().includes(zoekterm))
+        : [],
+    [zoekterm],
+  );
+
+  const categorieMetData = CATEGORIEN.map((cat) => ({ ...cat, items: GEBEDEN.filter(cat.match) })).filter((cat) => cat.items.length > 0);
+  const huidigeCat = categorieMetData.find((c) => c.id === actieveCat) ?? null;
+
+  const popupContent = popupGebed
+    ? {
+        title: popupGebed.titel,
+        subtitle: popupGebed.wanneer,
+        highlight: popupGebed.rubriek,
+        paragraphs: popupGebed.tekst.split('\n\n'),
+      }
+    : null;
 
   return (
-    <section id="gebeden" className="parchment-pattern bg-parchment py-16 text-ink sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionTitle
-          eyebrow="Gebedenboek"
-          title="Gebeden in het Nederlands"
-          intro="Morgengebeden, gebeden voor het slapengaan en gebeden door de dag, naar het Orthodox Gebedenboek volgens de Russische traditie. Tik een gebed aan om het groot te lezen; met de pijltjestoetsen bladert u verder."
-        />
-        <div className="mb-8 flex flex-wrap justify-center gap-2">
-          {CATS.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => {
-                setCat(c.id);
-                setOpen(null);
-              }}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold tracking-wider uppercase transition ${cat === c.id ? 'bg-gold text-bark' : 'border border-gold/40 text-gold-deep hover:bg-gold/10'}`}
-            >
-              {c.label}
-            </button>
-          ))}
+    <>
+      <section id="gebeden" className="bg-bark">
+        <img src="/images/heroes/hero-gebeden.png" alt="Gebeden — het gebedenboek van de Kerk" className="block h-auto w-full" />
+      </section>
+
+      {/* Introductie */}
+      <section className="orthodox-pattern bg-bark py-16 text-center text-cream sm:py-20">
+        <div className={CONTENT}>
+          <p className="text-[12px] font-bold tracking-[0.32em] text-gold-light uppercase sm:text-sm">Het gebedenboek</p>
+          <h2 className="font-display mt-3 text-3xl font-semibold text-gold-light sm:text-4xl">Het gebed van de Kerk</h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#d9c6a3] sm:text-lg">
+            Morgengebeden, gebeden voor het slapengaan en gebeden door de dag, naar het Orthodox Gebedenboek volgens de
+            Russische traditie. Tik een gebed aan om het groot te lezen.
+          </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {lijst.map((g, i) => (
-            <GebedKaart key={g.id} g={g} onOpen={() => setOpen(i)} />
-          ))}
+      </section>
+
+      {/* Gebedscategorieën / overzicht */}
+      <section className="orthodox-pattern parchment-pattern bg-parchment py-14 text-ink sm:py-20">
+        <div className={CONTENT}>
+          <div className="mx-auto max-w-xl">
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gold-deep" />
+              <input
+                type="text"
+                value={zoek}
+                onChange={(e) => setZoek(e.target.value)}
+                placeholder="Zoek een gebed"
+                className="w-full rounded-full border border-gold/40 bg-[#f8f1e3] py-3 pr-10 pl-11 text-sm text-ink placeholder:text-ink-mute focus:border-gold focus:outline-none"
+              />
+              {zoek && (
+                <button type="button" onClick={() => setZoek('')} aria-label="Wis zoekopdracht" className="absolute top-1/2 right-4 -translate-y-1/2 text-ink-mute hover:text-gold-deep">
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {zoekterm ? (
+            <div className="mt-10">
+              <p className="text-center text-sm text-ink-soft">{gezocht.length} gebed{gezocht.length === 1 ? '' : 'en'} gevonden</p>
+              {gezocht.length > 0 ? (
+                <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {gezocht.map((g) => (
+                    <PrayerCard key={g.id} g={g} onOpen={() => setPopupGebed(g)} />
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-center text-sm text-ink-mute">Geen gebeden gevonden voor "{zoek}".</p>
+              )}
+            </div>
+          ) : huidigeCat ? (
+            <div className="mt-10">
+              <button
+                type="button"
+                onClick={() => setActieveCat(null)}
+                className="mb-6 inline-flex items-center gap-1 text-xs font-bold tracking-[0.14em] text-gold-deep uppercase underline-offset-4 hover:underline"
+              >
+                ← Terug naar categorieën
+              </button>
+              <h3 className="font-display text-2xl font-semibold text-ink sm:text-3xl">{huidigeCat.label}</h3>
+              <p className="mt-2 text-sm text-ink-soft">{huidigeCat.omschrijving}</p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {huidigeCat.items.map((g) => (
+                  <PrayerCard key={g.id} g={g} onOpen={() => setPopupGebed(g)} />
+                ))}
+              </div>
+              {huidigeCat.id === 'jezusgebed' && (
+                <a
+                  href="#adem"
+                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/50 px-5 py-2.5 text-xs font-bold tracking-[0.16em] text-gold-deep uppercase transition hover:bg-gold hover:text-bark"
+                >
+                  Ontdek de ademcyclus →
+                </a>
+              )}
+            </div>
+          ) : (
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {categorieMetData.map((cat) => {
+                const Icon = cat.icon;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActieveCat(cat.id)}
+                    className="ornate-card group flex min-h-[240px] flex-col px-7 py-8 text-left"
+                  >
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full border border-gold/50 text-gold-light">
+                      <Icon className="h-7 w-7" strokeWidth={1.3} />
+                    </div>
+                    <h3 className="font-display mt-5 text-xl font-semibold text-gold-light">{cat.label}</h3>
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-[#d9c6a3]">{cat.omschrijving}</p>
+                    <div className="mt-4 flex items-center justify-between text-xs font-bold tracking-[0.14em] uppercase">
+                      <span className="text-[#bfa982]">{cat.items.length} gebed{cat.items.length === 1 ? '' : 'en'}</span>
+                      <span className="text-gold-light underline-offset-4 group-hover:underline">Bekijk gebeden →</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
-      </div>
-      <GebedVenster lijst={lijst} index={open} onClose={() => setOpen(null)} onIndex={setOpen} />
-    </section>
+      </section>
+
+      {/* Contemplatieve afsluiting */}
+      <CycleTransition
+        quote="De Heere Jezus is het midden van het gebed, het vasteland van de geest en het licht van de ziel."
+        citation="Monastieke traditie"
+        eyebrow="Gebed als leven"
+        text="De ademcyclus is geen afzonderlijke liturgische cyclus van de Kerk, maar het kleinste ritme van het gebedsleven: de voortdurende gedachtenis aan Christus, die zich met iedere ademhaling kan verbinden."
+        buttonLabel="Ontdek de ademcyclus"
+        buttonHref="#adem"
+      />
+
+      <LiturgicalPopup open={popupGebed !== null} onClose={() => setPopupGebed(null)} content={popupContent} />
+    </>
   );
 }
+

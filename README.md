@@ -71,3 +71,6 @@ export default defineConfig([
   },
 ])
 ```
+
+## Orthodoxe Tijd — ontwerpupdate
+Deze werkversie gebruikt de naam **Orthodoxe Tijd** en brengt de hoofdonderdelen in één warm Orthodox designsysteem. De pagina Vandaag is opgebouwd rond pijlgebed, uurgebed/Septuaginta-psalmvers, weekthema, kerkelijke dag, Paschale positie/lezingen en een gereserveerde plek voor spreuken van woestijnvaders en -moeders. Heiligen gebruikt bewust geen individuele heiligeniconen in het menologion en groepeert de gegevens per kerkelijke datum. Feesten gebruikt de bestaande centrale feest- en Paschadata.

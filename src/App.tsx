@@ -13,6 +13,8 @@ import DagModal from './components/DagModal';
 import LezingModal from './components/LezingModal';
 import Ademcyclus from './components/Ademcyclus';
 import Weekcyclus from './components/Weekcyclus';
+import Jaarcyclus from './components/Jaarcyclus';
+import ExactPageFrame from './components/ExactPageFrame';
 import { CyclePageLayout, GoldDivider, LiturgicalCard, ParchmentSection, QuoteSection, SectionHeader } from './components/CycleSections';
 import { AppContext, type LezingKeuze } from './lib/context';
 import { vandaag as bepaalVandaag, ymd, type Mode } from './lib/kalender';
@@ -77,65 +79,22 @@ export default function App() {
         <Header />
         <main>
           <Vandaag />
-          <Kalender />
+          <ExactPageFrame title="Kalender"><Kalender /></ExactPageFrame>
 
-          <Ademcyclus />
+          <ExactPageFrame title="Adem"><Ademcyclus /></ExactPageFrame>
 
-          <UrenCyclus />
+          <ExactPageFrame title="Etmaal"><UrenCyclus /></ExactPageFrame>
 
-          <Weekcyclus />
+          <ExactPageFrame title="Week"><Weekcyclus /></ExactPageFrame>
 
-          <CyclePageLayout
-            id="jaar"
-            eyebrow="JAAR"
-            title="Het jaarcyclus"
-            intro="Het kerkelijk jaar is een voortdurende voorbereiding op de grote mysteries van het christelijk leven: geboorte, lijden, opstanding, lijden van de Heiligen en de door de Geest gedragen loop van de gemeente."
-            quote="Het hele jaar stroomt door de grote heilige feesten, en elke maand draagt de herinnering van de Heilige Geest in zich."
-            citation="Liturgisch jaar"
-            body="De jaarcyclus verbindt de dagen van de gelovige met de geschiedenis van de Verlosser en met de schatkamer van de Heiligen. Het maakt de tijd van de kerk zichtbaar."
-          >
-            <ParchmentSection>
-              <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <SectionHeader
-                  eyebrow="Een jaar van mysteriën"
-                  title="Vaste feesten en heilige tijden"
-                  subtitle="Het kerkelijk jaar geeft de tijd een sacramentele vorm: advent, vasten, pasen, pinksteren en de herdenking van de heiligen."
-                />
-                <div className="grid gap-5 md:grid-cols-3">
-                  <LiturgicalCard
-                    title="Advent en winter"
-                    intro="Een tijd van voorbereiding, wachting en innerlijk ontwaken."
-                    body="De gelovige wordt opnieuw geleid naar de komst van Christus in het hart en in de geschiedenis."
-                    meta="WACHTEN"
-                  />
-                  <LiturgicalCard
-                    title="Vasten en lijden"
-                    intro="Het vasten is een vorm van reiniging, bevrijding en toewijding."
-                    body="Door de vasten wordt de ziel geschoold in matigheid, gebed en oprechtheid."
-                    meta="VASTEN"
-                  />
-                  <LiturgicalCard
-                    title="Pasen en pinksteren"
-                    intro="De grote feesten tonen het verlossingswerk en de volheid van de Geest."
-                    body="Zij vormen het midden van het jaar en geven het ritme van de kerk zijn luister en kracht."
-                    meta="VERRIJSENIS"
-                  />
-                </div>
-                <GoldDivider />
-                <QuoteSection
-                  quote="Het jaar van de kerk draagt het leven van Christus in zijn telpunten, eenheid en pas."
-                  citation="Jaarritme"
-                />
-              </div>
-            </ParchmentSection>
-          </CyclePageLayout>
+          <ExactPageFrame title="Jaar"><Jaarcyclus /></ExactPageFrame>
 
-          <Pascha />
+          <ExactPageFrame title="Pascha"><Pascha /></ExactPageFrame>
 
-          <Gebeden />
-          <Vasten />
-          <Heiligen />
-          <Feesten />
+          <ExactPageFrame title="Gebeden"><Gebeden /></ExactPageFrame>
+          <ExactPageFrame title="Vasten"><Vasten /></ExactPageFrame>
+          <ExactPageFrame title="Heiligen"><Heiligen /></ExactPageFrame>
+          <ExactPageFrame title="Feesten"><Feesten /></ExactPageFrame>
         </main>
         <Footer />
         <DagModal ymd={dagOpen} onClose={sluitDag} onNavigate={openDag} />

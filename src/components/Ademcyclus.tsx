@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { BookOpen, CircleDot, Heart, Wind, type LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 import Cross from './Cross';
 import Modal from './Modal';
+import { CycleTransition, TimeSanctificationTimeline } from './CycleSections';
 
 type PopupKey = 'wat' | 'jezusgebed' | 'gebedskoord' | 'hart';
 
@@ -51,30 +52,30 @@ const POPUPS: Record<PopupKey, PopupContent> = {
   },
 };
 
-const CARDS: Array<{ key: PopupKey; title: string; intro: string; Icon: LucideIcon }> = [
+const CARDS: Array<{ key: PopupKey; title: string; intro: string; mark: ReactNode }> = [
   {
     key: 'wat',
     title: 'Wat is de ademcyclus?',
     intro: 'Het kleinste ritme van het gebedsleven: de voortdurende gedachtenis aan Christus.',
-    Icon: Wind,
+    mark: '☦',
   },
   {
     key: 'jezusgebed',
     title: 'Het Jezusgebed',
     intro: 'Heer Jezus Christus, Zoon van God, ontferm U over mij, zondaar — telkens opnieuw aangeroepen.',
-    Icon: BookOpen,
+    mark: 'ΙϹ ΧϹ',
   },
   {
     key: 'gebedskoord',
     title: 'Het gebedskoord',
     intro: 'De chotki helpt het gebed aandachtig te herhalen zonder de ademhaling tot een teller te maken.',
-    Icon: CircleDot,
+    mark: 'Κύριε',
   },
   {
     key: 'hart',
     title: 'Gebed van het hart',
     intro: 'Van de lippen, naar het verstand, tot een gebed dat het hart zelf doordringt.',
-    Icon: Heart,
+    mark: '†',
   },
 ];
 
@@ -185,15 +186,15 @@ export default function Ademcyclus() {
       <section className="bg-parchment pb-16 sm:pb-24">
         <div className={CONTENT}>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {CARDS.map(({ key, title, intro, Icon }) => (
+            {CARDS.map(({ key, title, intro, mark }) => (
               <button
                 key={key}
                 type="button"
                 onClick={() => setPopup(key)}
-                className="orthodox-pattern group flex min-h-[260px] flex-col rounded-2xl border border-gold/35 bg-bark px-7 py-8 text-left text-cream shadow-[0_20px_50px_rgba(20,10,5,0.35)] transition duration-300 hover:border-gold/70 hover:shadow-[0_0_0_1px_rgba(201,162,39,0.35),0_28px_60px_rgba(20,10,5,0.45)] lg:min-h-[300px]"
+                className="ornate-card group flex min-h-[240px] flex-col px-7 py-8 text-left"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-full border border-gold/50 text-gold-light">
-                  <Icon className="h-8 w-8" strokeWidth={1.2} />
+                  <span className="liturgical-card-mark">{mark}</span>
                 </div>
                 <h3 className="font-display mt-6 text-[20px] font-semibold text-gold-light">{title}</h3>
                 <p className="mt-3 flex-1 text-[15px] leading-relaxed text-[#d9c6a3] sm:text-base">{intro}</p>
@@ -223,94 +224,17 @@ export default function Ademcyclus() {
       </section>
 
       {/* Quote + Van adem naar etmaal */}
-      <section className="orthodox-pattern bg-bark py-20 text-cream sm:py-24">
-        <div className={CONTENT}>
-          <div className="grid gap-12 lg:grid-cols-[35%_65%] lg:items-center lg:gap-16">
-            <div className="border-l border-gold/50 pl-8">
-              <blockquote className="font-display text-[26px] leading-relaxed text-gold-light italic sm:text-[28px]">
-                “De Heere Jezus is het midden van het gebed, het vasteland van de geest en het licht van de ziel.”
-              </blockquote>
-              <cite className="mt-4 block text-[12px] font-bold tracking-[0.24em] text-[#e8dcc0] not-italic uppercase">
-                Monastieke traditie
-              </cite>
-            </div>
-            <div className="text-center lg:text-right">
-              <p className="text-[13px] font-bold tracking-[0.32em] text-gold-light uppercase sm:text-sm">Van adem naar etmaal</p>
-              <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[#d9c6a3] sm:text-lg lg:ml-auto lg:mr-0">
-                Wat in de adem begint als de voortdurende gedachtenis aan Christus, krijgt in de etmaalcyclus zijn vaste gestalte:
-                de gebeden die de Kerk door dag en nacht heen bidt.
-              </p>
-              <a
-                href="#etmaal"
-                className="mt-7 inline-flex items-center gap-2 rounded-full border border-gold/60 px-7 py-3 text-[11px] font-bold tracking-[0.22em] text-gold-light uppercase transition hover:bg-gold hover:text-bark"
-              >
-                Ontdek de etmaalcyclus →
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CycleTransition
+        quote="De Heere Jezus is het midden van het gebed, het vasteland van de geest en het licht van de ziel."
+        citation="Monastieke traditie"
+        eyebrow="Van adem naar etmaal"
+        text="Wat in de adem begint als de voortdurende gedachtenis aan Christus, krijgt in de etmaalcyclus zijn vaste gestalte: de gebeden die de Kerk door dag en nacht heen bidt."
+        buttonLabel="Ontdek de etmaalcyclus"
+        buttonHref="#etmaal"
+      />
 
-      {/* De heiliging van de tijd */}
-      <section className="orthodox-pattern bg-bark px-4 py-16 text-cream sm:px-6 sm:py-20">
-        <div className={`${CONTENT} text-center`}>
-          <p className="text-[13px] font-bold tracking-[0.32em] text-gold-light uppercase sm:text-sm">De heiliging van de tijd</p>
+      <TimeSanctificationTimeline current="adem" />
 
-          <div className="mt-12 flex items-start justify-between gap-1 sm:gap-2">
-            {TIMELINE_ITEMS.map((item, index) => {
-              const active = item.id === 'adem';
-              return (
-                <div key={item.id} className="flex flex-1 items-start">
-                  <div className="flex flex-1 flex-col items-center text-center">
-                    <a
-                      href={item.href}
-                      className={`flex h-[70px] w-[70px] items-center justify-center rounded-full border-2 font-display text-lg font-semibold transition sm:h-[85px] sm:w-[85px] sm:text-2xl ${
-                        active
-                          ? 'border-gold bg-[#2a1c15] text-gold-light shadow-[0_0_0_6px_rgba(201,162,39,0.18),0_0_28px_rgba(201,162,39,0.35)]'
-                          : 'border-gold/40 bg-[#1f150f] text-gold-light/80 hover:border-gold/70'
-                      }`}
-                    >
-                      {item.label[0]}
-                    </a>
-                    <div className={`mt-4 text-[11px] font-bold tracking-[0.24em] uppercase sm:text-xs ${active ? 'text-gold-light' : 'text-[#d8c39a]'}`}>
-                      {item.label}
-                    </div>
-                    <div className="mt-2 hidden text-xs leading-relaxed whitespace-pre-line text-[#e8dcc0] sm:block">{item.title}</div>
-                  </div>
-                  {index < TIMELINE_ITEMS.length - 1 && <div className="mt-[35px] h-px flex-1 bg-gradient-to-r from-gold/60 via-gold/40 to-gold/60 sm:mt-[42px]" />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <Modal
-        open={popup !== null}
-        onClose={() => setPopup(null)}
-        eyebrow="ADEM"
-        title={popup ? POPUPS[popup].title : ''}
-        centerTitle
-        maxWidth="max-w-3xl"
-      >
-        {popup && (
-          <div className="space-y-4">
-            {POPUPS[popup].subtitle && (
-              <p className="text-center text-[11px] font-bold tracking-[0.22em] text-gold-deep uppercase">{POPUPS[popup].subtitle}</p>
-            )}
-            {POPUPS[popup].highlight && (
-              <div className="rounded-xl border border-gold/35 bg-gold-pale px-4 py-3 text-center font-display text-lg font-semibold text-gold-deep">
-                {POPUPS[popup].highlight}
-              </div>
-            )}
-            <div className="space-y-4 text-base leading-relaxed text-ink-soft">
-              {POPUPS[popup].paragraphs.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
-          </div>
-        )}
-      </Modal>
     </>
   );
 }
